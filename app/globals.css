@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+:root {
+  /* Primary Colors */
+  --primary-color: #0E2148;
+  --primary-bg: #f6f4f2;
+  --secondary-bg: #0E2148;
+  --primary-dark: #0c1e42;
+  --primary-accent: #57abdc;
+  --secondary-gray: #9fa6b0;
+  --light-blue: #cce6ef;
+  --brown: #8e826b;
+  --pink: #cea6aa;
+  --green: #d2dab0;
+
+  /* Background and text colors */
+  --background: #ffffff;
+  --foreground: #333333;
+  --muted: #666666;
+}
+
+@theme inline {
+  --color-primary-color: var(--primary-color);
+  --color-primary-bg: var(--primary-bg);
+  --color-secondary-bg: var(--secondary-bg);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-accent: var(--primary-accent);
+  --color-secondary-gray: var(--secondary-gray);
+  --color-light-blue: var(--light-blue);
+  --color-brown: var(--brown);
+  --color-pink: var(--pink);
+  --color-green: var(--green);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --font-sans: 'Mulish', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@utility col-count-* {
+  column-count: --value(integer);
+}
+
+@utility col-gap-* {
+  column-gap: --spacing(--value(integer));
+}
+
+@utility col-w-* {
+  column-width: --spacing(--value(integer));
+}
+
+@utility col-rule-* {
+  column-rule-style: var(--tw-column-rule-style);
+  column-rule-color: --value(--color);
+  column-rule-width: calc(--value(integer) * 1px);
+  column-rule-style: --value(--column-rule-style-*);
+}
+
+@utility col-fill-* {
+  column-fill: --value(--column-fill-*);
+}
+
+/* Specific name with "col-count" prefix to avoid collision with grid-column utilities */
+@utility col-span-* {
+  column-span: --value(--column-count-span-*);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  direction: ltr;
+}
+
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Mulish', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  font-variation-settings: 'opsz' 32;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-gray);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-accent);
+}
