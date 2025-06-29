@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { Bell, User, Menu, X } from 'lucide-react';
+import { Bell, User, Menu, X, Heart, LogIn } from 'lucide-react';
 import { MobileMenu } from '../MobileMenu';
 import { LanguageToggle } from '../LanguageToggle';
 import SearchBar from './SearchBar';
@@ -71,15 +71,27 @@ const sampleNotifications = [
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(sampleNotifications);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations();
 
-  // Close notification dropdown when clicking outside
+  // Mock user data (you can replace this with actual user data from context/state)
+  const isLoggedIn = true; // Change this based on actual authentication state
+  const currentUser = {
+    name: 'Ahmed Al-Mansouri',
+    phone: '+974 5555 1234'
+  };
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setIsNotificationOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
       }
     }
 
@@ -135,7 +147,7 @@ export function Header() {
             </div>
 
             {/* Right side actions */}
-            <div className="flex items-center gap-4 sm:gap-12">
+            <div className="flex items-center gap-4 sm:gap-6">
               {/* Notification Button */}
               <div className="relative" ref={notificationRef}>
                 <button 
@@ -259,35 +271,93 @@ export function Header() {
                 )}
               </div>
 
-              <button className="text-gray-600 hover:text-primary-accent transition-colors cursor-pointer">
-                <User className="w-6 h-6" />
-              </button>
+              {/* User Button */}
+              <div className="relative" ref={userMenuRef}>
+                <button 
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="relative text-gray-600 hover:text-primary-accent transition-colors cursor-pointer p-2 rounded-full hover:bg-gray-100"
+                >
+                  <User className="w-6 h-6" />
+                </button>
 
-              <LanguageToggle />
+                {/* User Dropdown */}
+                {isUserMenuOpen && (
+                  <div className="absolute end-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+                    {isLoggedIn ? (
+                      <>
+                        {/* User Info Header */}
+                        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{currentUser.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{currentUser.phone}</p>
+                        </div>
 
+                        {/* Menu Items */}
+                        <div className="py-2">
+                          <Link
+                            href="/profile"
+                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <User className="w-4 h-4 text-primary-accent" />
+                            {t('user.profile')}
+                          </Link>
+                          <Link
+                            href="/favorites"
+                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <Heart className="w-4 h-4 text-primary-accent" />
+                            {t('user.favorites')}
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="py-2">
+                        <Link
+                          href="/login"
+                          className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <LogIn className="w-4 h-4 text-primary-accent" />
+                          {t('user.login')}
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               <Link href="/post-ad" className="hidden sm:block bg-primary-color text-white px-4 py-2 rounded-lg hover:text-primary-accent transition-colors font-bold cursor-pointer">
                 {t('nav.postAd')}
               </Link>
 
               {/* Mobile menu button */}
               <button
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden text-gray-600 hover:text-primary-accent transition-colors cursor-pointer"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden text-gray-600 hover:text-primary-accent transition-colors"
               >
                 <Menu className="w-6 h-6" />
               </button>
+
+              <LanguageToggle />
             </div>
           </div>
         </div>
 
-        <SearchBar />
+        {/* Search Bar */}
+        <div className="border-t border-gray-100">
+          <div className="container mx-auto px-4 py-4">
+            <SearchBar />
+          </div>
+        </div>
       </header>
 
       {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
+      {isMobileMenuOpen && (
+        <MobileMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
+      )}
     </>
   );
 }

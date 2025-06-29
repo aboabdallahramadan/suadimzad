@@ -271,19 +271,55 @@
     },
     "notifications": {
       "title": "Notifications",
+      "noNotifications": "No notifications yet",
+      "noNotificationsDesc": "We'll notify you when something important happens",
       "markAllRead": "Mark all as read",
       "clearAll": "Clear all",
-      "viewAll": "View all notifications",
-      "noNotifications": "No notifications yet",
-      "noNotificationsDesc": "We'll notify you when something happens",
       "newCount": "new",
-      "types": {
-        "message": "New message",
-        "like": "Someone liked your ad",
-        "view": "Ad performance update",
-        "system": "System notification",
-        "payment": "Payment notification"
-      }
+      "viewAll": "View all notifications"
+    },
+    "user": {
+      "profile": "Profile",
+      "favorites": "Favorites",
+      "login": "Login",
+      "logout": "Logout",
+      "myProfile": "My Profile",
+      "editProfile": "Edit Profile",
+      "userInfo": "User Information",
+      "name": "Name",
+      "phoneNumber": "Phone Number",
+      "email": "Email",
+      "joinedDate": "Member since",
+      "following": "Following",
+      "followers": "Followers",
+      "myAds": "My Ads",
+      "favoriteAds": "Favorite Ads",
+      "noFavorites": "No favorites yet",
+      "noFavoritesDesc": "Start browsing and save your favorite ads here",
+      "followingUsers": "Following Users",
+      "noFollowing": "Not following anyone yet",
+      "noFollowingDesc": "Follow other users to see their latest ads",
+      "follow": "Follow",
+      "unfollow": "Unfollow",
+      "viewProfile": "View Profile",
+      "adsCount": "{count} ads",
+      "activeAds": "Active Ads",
+      "soldAds": "Sold/Expired Ads",
+      "noAds": "No ads posted yet",
+      "noAdsDesc": "Start posting ads to build your profile",
+      "startBrowsing": "Start Browsing",
+      "viewDetails": "View Details",
+      "contact": "Contact",
+      "noAdsDescUser": "This user hasn't posted any ads yet",
+      "likes": "likes",
+      "comments": "comments"
+    },
+    "profile": {
+      "title": "Profile",
+      "userProfile": "User Profile",
+      "contactSeller": "Contact Seller",
+      "reportUser": "Report User",
+      "shareProfile": "Share Profile"
     }
   }
   

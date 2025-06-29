@@ -1,5 +1,4 @@
 "use client";
-import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
@@ -12,8 +11,6 @@ export default function OTPPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [type, setType] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -23,13 +20,9 @@ export default function OTPPage() {
   useEffect(() => {
     const phone = searchParams.get('phone');
     const authType = searchParams.get('type');
-    const fName = searchParams.get('firstName');
-    const lName = searchParams.get('lastName');
     
     if (phone) setPhoneNumber(phone);
     if (authType) setType(authType);
-    if (fName) setFirstName(fName);
-    if (lName) setLastName(lName);
   }, [searchParams]);
 
   useEffect(() => {

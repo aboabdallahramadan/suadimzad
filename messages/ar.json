@@ -271,19 +271,55 @@
     },
     "notifications": {
       "title": "الإشعارات",
+      "noNotifications": "لا توجد إشعارات بعد",
+      "noNotificationsDesc": "سنقوم بإشعارك عند حدوث شيء مهم",
       "markAllRead": "تعيين الكل كمقروء",
       "clearAll": "مسح الكل",
-      "viewAll": "عرض جميع الإشعارات",
-      "noNotifications": "لا توجد إشعارات بعد",
-      "noNotificationsDesc": "سنخبرك عند حدوث شيء ما",
       "newCount": "جديد",
-      "types": {
-        "message": "رسالة جديدة",
-        "like": "شخص ما أعجب بإعلانك",
-        "view": "تحديث أداء الإعلان",
-        "system": "إشعار النظام",
-        "payment": "إشعار الدفع"
-      }
+      "viewAll": "عرض جميع الإشعارات"
+    },
+    "user": {
+      "profile": "الملف الشخصي",
+      "favorites": "المفضلة",
+      "login": "تسجيل الدخول",
+      "logout": "تسجيل الخروج",
+      "myProfile": "ملفي الشخصي",
+      "editProfile": "تعديل الملف الشخصي",
+      "userInfo": "معلومات المستخدم",
+      "name": "الاسم",
+      "phoneNumber": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "joinedDate": "عضو منذ",
+      "following": "يتابع", 
+      "followers": "المتابعون",
+      "myAds": "إعلاناتي",
+      "favoriteAds": "الإعلانات المفضلة",
+      "noFavorites": "لا توجد مفضلة بعد",
+      "noFavoritesDesc": "ابدأ بالتصفح واحفظ إعلاناتك المفضلة هنا",
+      "followingUsers": "المستخدمون المتابعون",
+      "noFollowing": "لا تتابع أحداً بعد",
+      "noFollowingDesc": "تابع مستخدمين آخرين لترى آخر إعلاناتهم",
+      "follow": "متابعة",
+      "unfollow": "إلغاء المتابعة",
+      "viewProfile": "عرض الملف الشخصي",
+      "adsCount": "{count} إعلان",
+      "activeAds": "الإعلانات النشطة",
+      "soldAds": "الإعلانات المباعة/المنتهية",
+      "noAds": "لم يتم نشر إعلانات بعد",
+      "noAdsDesc": "ابدأ بنشر الإعلانات لبناء ملفك الشخصي",
+      "startBrowsing": "ابدأ التصفح",
+      "viewDetails": "عرض التفاصيل",
+      "contact": "اتصل",
+      "noAdsDescUser": "لم يتم نشر إعلانات بعد",
+      "likes": "معجب",
+      "comments": "تعليق"
+    },
+    "profile": {
+      "title": "الملف الشخصي",
+      "userProfile": "ملف المستخدم الشخصي",
+      "contactSeller": "التواصل مع البائع",
+      "reportUser": "الإبلاغ عن المستخدم",
+      "shareProfile": "مشاركة الملف الشخصي"
     }
   }
   
