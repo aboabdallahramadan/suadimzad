@@ -60,11 +60,6 @@ export function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link href={`/help`} className="text-gray-300 hover:text-white transition-colors">
-                  {t('footer.help')}
-                </Link>
-              </li>
-              <li>
                 <Link href={`/contact`} className="text-gray-300 hover:text-white transition-colors">
                   {t('footer.contact')}
                 </Link>

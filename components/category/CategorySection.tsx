@@ -58,18 +58,18 @@ interface CategorySectionProps {
         </div>
   
         {/* Subcategories Grid */}
-        <div className='grid grid-cols-3 gap-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
           {category.subcategories.map((sub, index) => (
             <Link
               key={index}
               href={`/${sub.id}`}
-              className={`group block ${getColSpanClass(index)}`}
+              className={`group block sm:${getColSpanClass(index)}`}
             >
               <div className={`${getBackgroundColor()} rounded-2xl p-2 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 relative h-24`}>
                 <div className="flex items-center justify-between h-full">
                   {/* Text content on the left */}
                   <div className="flex-1 h-full relative">
-                    <div className="absolute top-0 left-0">
+                    <div className="absolute top-0 start-0">
                       <h3 className="text-base text-gray-800 group-hover:text-gray-900 transition-colors leading-tight">
                         {sub.title}
                       </h3>
