@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Upload, X, Send } from 'lucide-react'
 import type { ExtraInfo } from '@/types/extraInfo'
-import Image from 'next/image'
+import WatermarkedImage from '@/components/WatermarkedImage'
 
 interface FormData {
   title: string
@@ -238,7 +238,7 @@ const PostAdPage = () => {
               {/* Title */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('postAd.title')} <span className="text-red-500">*</span>
+                  {t('postAd.addTitle')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -371,12 +371,14 @@ const PostAdPage = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-6">
                 {formData.images.map((image, index) => (
                   <div key={index} className="relative group">
-                    <Image
+                    <WatermarkedImage
                       src={image}
                       alt={`Preview ${index + 1}`}
                       width={100}
                       height={100}
                       className="w-full h-24 object-cover rounded-lg"
+                      watermarkPosition="bottom-right"
+                      watermarkSize="small"
                     />
                     <button
                       type="button"

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 const banners = [
   {
@@ -57,13 +56,7 @@ export function BannerCarousel() {
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            <Image
-              src={banner.image}
-              alt={banner.alt}
-              fill
-              className="object-cover"
-              priority={index === 0}
-            />
+            <img src={banner.image} alt={banner.alt} className="w-full h-full object-cover" />
           </div>
         ))}
       </div>

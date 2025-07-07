@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import WatermarkedImgTag from '../WatermarkedImgTag'
 
 interface ImagesProps {
   images: string[]
@@ -28,10 +29,12 @@ const Images = ({ images }: ImagesProps) => {
       <div className="bg-white rounded-lg overflow-hidden shadow-sm mb-6">
             {/* Image Carousel */}
             <div className="relative">
-              <img 
+              <WatermarkedImgTag
                 src={images[currentImageIndex]} 
                 alt="ad image"
                 className="w-full h-96 object-cover"
+                watermarkPosition="bottom-right"
+                watermarkSize="large"
               />
               
               {/* Navigation arrows - only show if there are multiple images */}
@@ -61,7 +64,7 @@ const Images = ({ images }: ImagesProps) => {
             {images.length > 1 && (
               <div className="flex p-4 space-x-4 overflow-x-auto">
                 {images.map((img, index) => (
-                  <img 
+                  <WatermarkedImgTag
                     key={index}
                     src={img} 
                     alt={`ad image ${index}`}
@@ -71,6 +74,8 @@ const Images = ({ images }: ImagesProps) => {
                         ? 'border-primary-accent opacity-100' 
                         : 'border-transparent opacity-70 hover:opacity-100 hover:border-primary-accent'
                     }`}
+                    watermarkPosition="bottom-right"
+                    watermarkSize="small"
                   />
                 ))}
               </div>

@@ -5,6 +5,7 @@ import { User, Calendar, Users, Share2, UserPlus, UserCheck, Phone } from 'lucid
 import { useParams } from 'next/navigation';
 import { AdSmall } from '@/types/adSmall';
 import { Link } from '@/i18n/navigation';
+import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 
 // Mock user data based on ID
 const getUserData = (id: string) => {
@@ -140,7 +141,22 @@ export default function UserProfilePage() {
                     
                     
                     <div className="relative">
-                      <button className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                      <button onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: user.name,
+                            text: `Check out this user: ${user.name}`,
+                            url: window.location.href
+                          }).catch(console.error);
+                        } else {
+                          navigator.clipboard.writeText(window.location.href).then(() => {
+                            alert('Link copied to clipboard!');
+                          }).catch(() => {
+                            alert('Failed to copy link');
+                          });
+                        }
+                      }}
+                      className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
                         <Share2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -217,11 +233,13 @@ export default function UserProfilePage() {
                     <Link href={`/ad/${ad.id}`}  key={ad.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video bg-gray-200 relative">
                         <div className="aspect-[4/3] relative">
-                            <img 
-                            src={ad.image} 
-                            alt={ad.title}
-                            className="w-full h-full object-cover"
-                            />
+                                                    <WatermarkedImgTag
+                          src={ad.image}
+                          alt={ad.title}
+                          className="w-full h-full object-cover"
+                          watermarkPosition="bottom-right"
+                          watermarkSize="medium"
+                        />
                         </div>
                         </div>
                         

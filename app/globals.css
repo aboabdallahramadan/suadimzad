@@ -2,11 +2,12 @@
 
 :root {
   /* Primary Colors */
-  --primary-color: #0E2148;
+  --primary-color: #566687;
   --primary-bg: #f6f4f2;
-  --secondary-bg: #0E2148;
-  --primary-dark: #0c1e42;
-  --primary-accent: #57abdc;
+  --secondary-bg: #566687;
+  --site-gray: #B5B8C1;
+  --primary-dark: #566687;
+  --primary-accent: #566687;
   --secondary-gray: #9fa6b0;
   --light-blue: #cce6ef;
   --brown: #8e826b;
@@ -116,4 +117,12 @@ a {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-accent);
+}
+
+/* Line clamping utility */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }

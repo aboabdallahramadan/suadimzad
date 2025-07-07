@@ -1,25 +1,27 @@
 import { AdComment } from '@/types/adComment'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 const CommentsSection = ({adComments}: {adComments: AdComment[]}) => {
+  const t = useTranslations();
   return (
     <div>
         {/* Add Comment */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h3 className="text-xl font-semibold mb-4 text-primary-color">Add comment</h3>
+          <h3 className="text-xl font-semibold mb-4 text-primary-color">{t("comments.addComment")}</h3>
           <textarea 
-            placeholder="Enter comment here"
+            placeholder={t("comments.addCommentPlaceholder")}
             className="w-full p-4 border border-secondary-gray rounded-lg focus:outline-none focus:border-primary-accent resize-none"
             rows={4}
           />
           <button className="mt-4 bg-primary-color text-white px-8 py-3 rounded-lg hover:bg-primary-dark w-full sm:w-auto">
-            Comment
+            {t("comments.addComment")}
           </button>
         </div>
 
         {/* Comments */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-xl font-semibold mb-4 text-primary-color">Comments ({adComments.length})</h3>
+          <h3 className="text-xl font-semibold mb-4 text-primary-color">{t("comments.comments")} ({adComments.length})</h3>
           
           <div className="space-y-6">
             {adComments.map((comment) => (

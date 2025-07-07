@@ -3,6 +3,7 @@ import Images from '@/components/adDetails/Images';
 import AdDetails from '@/components/adDetails/AdDetails';
 import UserProfileSection from '@/components/adDetails/UserProfileSection';
 import CommentsSection from '@/components/adDetails/CommentsSection';
+import SimilarAds from '@/components/adDetails/SimilarAds';
 
 // Dummy ad data for detail page
 const dummyAdDetail: Ad = {
@@ -84,6 +85,50 @@ const dummyAdDetail: Ad = {
       comment: 'Interested in this position',
       timeAgo: '1 day ago'
     }
+  ],
+  similarAds: [
+    {
+      id: '1',
+      title: 'Hiring driver. snoonu. carcon',
+      price: 6000,
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      comments: 10,
+      likes: 100
+    },
+    
+    {
+      id: '2',
+      title: 'Hiring driver. snoonu. carcon',
+      price: 6000,
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      comments: 10,
+      likes: 100
+    },
+    {
+      id: '3',
+      title: 'Hiring driver. snoonu. carcon 3',
+      price: 6000,
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      comments: 10,
+      likes: 100
+    },
+    {
+      id: '4',
+      title: 'Hiring driver. snoonu. carcon 4',
+      price: 6000,
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      comments: 10,
+      likes: 100
+    },
+    {
+      id: '5',
+      title: 'Hiring driver. snoonu. carcon 5',
+      price: 6000,
+      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      comments: 10,
+      likes: 100
+    }
+
   ]
 };
 
@@ -101,6 +146,9 @@ export default async function AdDetailPage() {
 
         {/* User Profile */}
         <UserProfileSection user={dummyAdDetail.user} />
+
+        {/* Similar Ads */}
+        <SimilarAds ads={dummyAdDetail.similarAds} />
 
         {/*comments section */ }
         <CommentsSection adComments={dummyAdDetail.comments} />

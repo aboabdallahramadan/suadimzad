@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation';
 import { Category } from '@/types/category';
+import WatermarkedImgTag from '../WatermarkedImgTag';
 
 interface CategorySectionProps {
     category: Category;
@@ -18,30 +19,6 @@ interface CategorySectionProps {
     };
     return classes[randomWidth as keyof typeof classes];
   }
-
-
-  // Function to get background color based on category/subcategory
-  const getBackgroundColor = () => {
-    const colors = [
-      'bg-blue-100', // Light blue
-      'bg-green-100', // Light green  
-      'bg-orange-100', // Light orange
-      'bg-purple-100', // Light purple
-      'bg-pink-100', // Light pink
-      'bg-yellow-100', // Light yellow
-      'bg-indigo-100', // Light indigo
-      'bg-red-100', // Light red
-      'bg-teal-100', // Light teal
-      'bg-cyan-100', // Light cyan
-      'bg-lime-100', // Light lime
-      'bg-amber-100', // Light amber
-      'bg-emerald-100', // Light emerald
-      'bg-sky-100', // Light sky
-    ];
-    
-    const randomIndex = Math.floor(Math.random() * colors.length);
-    return colors[randomIndex];
-  };
   
  export function CategorySection({ category }: CategorySectionProps) {
   
@@ -65,25 +42,34 @@ interface CategorySectionProps {
               href={`/${sub.id}`}
               className={`group block sm:${getColSpanClass(index)}`}
             >
-              <div className={`${getBackgroundColor()} rounded-2xl p-2 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 relative h-24`}>
-                <div className="flex items-center justify-between h-full">
+              <div className={`bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-2xl p-4 hover:shadow-xl hover:scale-[1.02] hover:border-primary-accent/30 transition-all duration-300 relative h-28 overflow-hidden`}>
+                {/* Subtle background pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                <div className="flex items-center justify-between h-full relative z-10">
                   {/* Text content on the left */}
-                  <div className="flex-1 h-full relative">
-                    <div className="absolute top-0 start-0">
-                      <h3 className="text-base text-gray-800 group-hover:text-gray-900 transition-colors leading-tight">
-                        {sub.title}
-                      </h3>
-                    </div>
+                  <div className="flex-1 h-full flex flex-col justify-center pr-4">
+                    <h3 className="text-lg font-semibold text-gray-800 group-hover:text-primary-accent transition-colors duration-300 leading-tight mb-1">
+                      {sub.title}
+                    </h3>
+                    <div className="w-8 h-0.5 bg-primary-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                   </div>
                   
                   {/* Image on the right */}
-                  <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
-                    <img 
+                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-md ring-2 ring-white group-hover:ring-primary-accent/20 transition-all duration-300">
+                    <WatermarkedImgTag
                       src={sub.image} 
                       alt={sub.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      watermarkPosition="bottom-right"
+                      watermarkSize="small"
                     />
                   </div>
+                </div>
+                
+                {/* Hover arrow indicator */}
+                <div className="absolute top-1/2 right-2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="w-1 h-1 bg-primary-accent rounded-full"></div>
                 </div>
               </div>
             </Link>

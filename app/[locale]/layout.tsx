@@ -12,8 +12,8 @@ const mulish = Mulish({
 });
 
 export const metadata: Metadata = {
-  title: "Mzad Qatar - اكبر سوق في قطر",
-  description: "Biggest marketplace in Qatar. Post free ads. Buy and sell used cars, apartment for rent, search jobs and more",
+  title: "سهل البيع والشراء",
+  description: "سهل البيع والشراء",
 };
 export default async function LocaleLayout({
   children,

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { User, Phone, Calendar, Users, Heart, Share2, UserCheck } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { AdSmall } from '@/types/adSmall';
+import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 
 // Mock data
 const currentUser = {
@@ -250,11 +251,13 @@ export default function ProfilePage() {
                     {userAds.map((ad) => (
                       <Link href={`/ad/${ad.id}`} key={ad.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-[4/3] relative">
-                            <img 
-                            src={ad.image} 
-                            alt={ad.title}
-                            className="w-full h-full object-cover"
-                            />
+                        <WatermarkedImgTag
+                          src={ad.image}
+                          alt={ad.title}
+                          className="w-full h-full object-cover"
+                          watermarkPosition="bottom-right"
+                          watermarkSize="medium"
+                        />
                         </div>
                         
                         <div className="p-4">

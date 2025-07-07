@@ -1,5 +1,5 @@
 import { BannerCarousel } from '@/components/BannerCarousel';
-import { CategoriesGrid } from '@/components/category/CategoriesGrid';
+import AdsSection from '@/components/AdsSection';
 
 
 
@@ -9,14 +9,9 @@ export default async function HomePage() {
       {/* Banner Carousel */}
       <BannerCarousel />
 
-
-      {/* Categories Grid */}
-      <div className='bg-white'>
-
-        <div className="container mx-auto px-4 py-8">
-          <CategoriesGrid />
-        </div>
-      </div>
+      {/* Latest Ads Section */}
+      <AdsSection />
+      
     </div>
   );
 }

@@ -1,16 +1,18 @@
 {
     "nav": {
       "categories": "Ads Categories",
-      "liveAuction": "Mzad Live Auction",
+      "liveAuction": "Sahal Live Auction",
       "login": "Log in to see more features",
       "language": "Language",
       "allCategories": "All Categories",
-      "downloadApp": "Download Mzad Qatar App free",
+      "downloadApp": "Download Sahal App free",
       "help": "Help",
       "more": "More",
       "postAd": "Post Ad"
     },
     "categories": {
+      "title": "Categories",
+      "description": "Browse through our wide range of categories to find the perfect ad for your needs",
       "realEstate": "Real estate",
       "vehicles": "Vehicles",
       "services": "Services",
@@ -107,15 +109,15 @@
       "home": "Home"
     },
     "footer": {
-      "description": "Top Classified Site in Qatar. Post free ads. Buy and sell used cars, apartment for rent, search jobs and more cheap quality items in Qatar",
+      "description": "Top Classified Site in Gulf. Post free ads. Buy and sell used cars, apartment for rent, search jobs and more cheap quality items in Gulf",
       "support": "Support",
       "help": "Help Center",
       "about": "About",
       "contact": "Contact",
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
-      "copyright": "Copyright © 2025 Mzad Qatar. All rights reserved.",
-      "downloadApp": "Download Mzad Qatar App free",
+      "copyright": "Copyright © 2025 Sahal. All rights reserved.",
+      "downloadApp": "Download Sahal App free",
       "quickLinks": "Quick Links"
     },
     "postAd": {
@@ -123,6 +125,7 @@
       "subtitle": "Fill in the details below to post your ad",
       "adDetails": "Ad Details",
       "title": "Title",
+      "addTitle": "Add Title",
       "titlePlaceholder": "Enter ad title",
       "description": "Description",
       "descriptionPlaceholder": "Describe your item or service",
@@ -157,6 +160,14 @@
       "selectLocation": "Select a location",
       "selectSubcategoryFirst": "Please select a subcategory first to see relevant information fields"
     },
+    "adDetails": {
+      "category": "Category",
+      "description": "Description",
+      "share": "Share",
+      "memberSince": "Member since",
+      "showNumber": "Show number",
+      "follow": "Follow"
+    },
     "locations": {
       "Riyadh": "Riyadh",
       "Jeddah": "Jeddah",
@@ -190,6 +201,19 @@
       "electronicsCondition": "Condition",
       "electronicsWarranty": "Warranty"
     },
+    "ads": {
+      "title": "Latest Ads",
+      "subtitle": "Discover amazing deals and opportunities from our community",
+      "seeMore": "See More Ads",
+      "loading": "Loading...",
+      "noMoreAds": "No more ads to show",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{days} days ago",
+      "weeksAgo": "{weeks} weeks ago",
+      "monthsAgo": "{months} months ago",
+      "similarAds": "Similar Ads"
+    },
     "contact": {
       "pageTitle": "Contact Us",
       "subtitle": "Get in touch with our team",
@@ -197,8 +221,8 @@
       "phone": "Phone",
       "address": "Address",
       "workingHours": "Working Hours",
-      "supportEmail": "support@mzadqatar.com",
-      "salesEmail": "sales@mzadqatar.com",
+      "supportEmail": "support@sahal.com",
+      "salesEmail": "sales@sahal.com",
       "phoneNumber": "+974 1234 5678",
       "addressText": "Doha, Qatar",
       "hoursText": "Sunday - Thursday: 9:00 AM - 6:00 PM",
@@ -215,7 +239,7 @@
     "privacy": {
       "pageTitle": "Privacy Policy",
       "lastUpdated": "Last updated: January 2025",
-      "introduction": "At Mzad Qatar, we are committed to protecting your privacy and ensuring the security of your personal information.",
+      "introduction": "At Sahal, we are committed to protecting your privacy and ensuring the security of your personal information.",
       "infoCollection": "Information We Collect",
       "infoCollectionText": "We collect information you provide directly to us, such as when you create an account, post an ad, or contact us.",
       "infoUse": "How We Use Your Information",
@@ -225,12 +249,12 @@
       "dataSecurity": "Data Security",
       "dataSecurityText": "We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.",
       "contactUs": "Contact Us",
-      "contactUsText": "If you have any questions about this Privacy Policy, please contact us at privacy@mzadqatar.com"
+      "contactUsText": "If you have any questions about this Privacy Policy, please contact us at privacy@sahal.com"
     },
     "terms": {
       "pageTitle": "Terms of Service",
       "lastUpdated": "Last updated: January 2025",
-      "introduction": "Welcome to Mzad Qatar. These terms and conditions outline the rules and regulations for the use of our website.",
+      "introduction": "Welcome to Sahal. These terms and conditions outline the rules and regulations for the use of our website.",
       "acceptance": "Acceptance of Terms",
       "acceptanceText": "By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.",
       "userAccounts": "User Accounts",
@@ -242,7 +266,7 @@
       "termination": "Termination",
       "terminationText": "We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever.",
       "contactUs": "Contact Us",
-      "contactUsText": "If you have any questions about these Terms of Service, please contact us at legal@mzadqatar.com"
+        "contactUsText": "If you have any questions about these Terms of Service, please contact us at legal@sahal.com"
     },
     "auth": {
       "signIn": "Sign In",
@@ -312,7 +336,8 @@
       "contact": "Contact",
       "noAdsDescUser": "This user hasn't posted any ads yet",
       "likes": "likes",
-      "comments": "comments"
+      "comments": "comments",
+      "chats": "Chats"
     },
     "profile": {
       "title": "Profile",
@@ -320,6 +345,61 @@
       "contactSeller": "Contact Seller",
       "reportUser": "Report User",
       "shareProfile": "Share Profile"
+    },
+    "userProfile": {
+      "memberSince": "Member since",
+      "showNumber": "Show number",
+      "follow": "Follow",
+      "chat": "Chat"
+    },
+    "comments": {
+      "addComment": "Add comment",
+      "addCommentPlaceholder": "Enter comment here",
+      "comments": "Comments",
+      "noComments": "No comments yet"
+    },
+    "chat": {
+      "title": "Messages",
+      "chats": "Chats",
+      "noChats": "No conversations yet",
+      "noChatsDesc": "Start a conversation by contacting a seller or buyer",
+      "newMessage": "New message",
+      "lastMessage": "Last message",
+      "searchChats": "Search chats...",
+      "online": "Online",
+      "offline": "Offline",
+      "typing": "Typing...",
+      "typeMessage": "Type a message...",
+      "sendMessage": "Send",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "messageInfo": "Message Info",
+      "delivered": "Delivered",
+      "seen": "Seen",
+      "deleteChat": "Delete Chat",
+      "blockUser": "Block User",
+      "reportUser": "Report User",
+      "clearChat": "Clear Chat",
+      "chatWith": "Chat with",
+      "back": "Back",
+      "aboutAd": "About this ad",
+      "viewAd": "View Ad",
+      "chatSettings": "Chat Settings",
+      "attachImage": "Attach Image",
+      "attachFile": "Attach File",
+      "loading": "Loading...",
+      "error": "Error loading messages",
+      "retry": "Retry",
+      "messageDeleted": "This message was deleted",
+      "you": "You",
+      "now": "Now",
+      "minutesAgo": "{minutes}m ago",
+      "hoursAgo": "{hours}h ago",
+      "daysAgo": "{days}d ago",
+      "active": "Active",
+      "lastSeen": "Last seen",
+      "startConversation": "Start a conversation",
+      "sendYourFirstMessage": "Send your first message to start chatting"
     }
   }
   

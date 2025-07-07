@@ -5,4 +5,7 @@ export type AdSmall = {
     image: string
     comments: number
     likes: number
+    category?: string
+    location?: string
+    createdAt?: string
 }

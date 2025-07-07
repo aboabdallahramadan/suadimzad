@@ -135,7 +135,7 @@ export function CategoriesGrid() {
   return (
     <div className="space-y-12">
 
-      <div className="lg:col-count-2 lg:col-gap-12 lg:col-w-1/2 lg:col-rule-1 lg:col-rule-solid lg:col-rule-gray-200">
+      <div className="xl:col-count-2 xl:col-gap-12 xl:col-w-1/2 xl:col-rule-1 xl:col-rule-solid xl:col-rule-gray-200">
         {categories.map((category) => (
           <div key={category.id} className="w-full break-inside-avoid mb-12">
           <CategorySection

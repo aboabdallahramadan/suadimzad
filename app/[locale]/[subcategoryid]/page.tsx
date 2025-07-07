@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { AdSmall } from '@/types/adSmall';
 import { Link } from '@/i18n/navigation';
+import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 
 // Dummy ad data
 const dummyAds: AdSmall[] = [
@@ -147,10 +148,12 @@ export default async function CategoryPage() {
                       
                       {/* Ad Image */}
                       <div className="aspect-[4/3] relative">
-                        <img 
+                        <WatermarkedImgTag
                           src={ad.image} 
                           alt={ad.title}
                           className="w-full h-full object-cover"
+                          watermarkPosition="bottom-right"
+                          watermarkSize="medium"
                         />
                       </div>
                       

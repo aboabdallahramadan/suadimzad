@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { Bell, User, Menu, X, Heart, LogIn } from 'lucide-react';
+import { Bell, User, Menu, X, Heart, LogIn, LayoutGrid, MessageCircle } from 'lucide-react';
 import { MobileMenu } from '../MobileMenu';
 import { LanguageToggle } from '../LanguageToggle';
 import SearchBar from './SearchBar';
@@ -147,7 +147,15 @@ export function Header() {
             </div>
 
             {/* Right side actions */}
-            <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2 sm:gap-6">
+              {/* Categories Button */}
+              <Link 
+                href="/categories"
+                className="text-gray-600 hover:text-primary-accent transition-colors cursor-pointer p-2 rounded-full hover:bg-gray-100"
+              >
+                <LayoutGrid className="w-6 h-6" />
+              </Link>
+
               {/* Notification Button */}
               <div className="relative" ref={notificationRef}>
                 <button 
@@ -302,6 +310,14 @@ export function Header() {
                             {t('user.profile')}
                           </Link>
                           <Link
+                            href="/chats"
+                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <MessageCircle className="w-4 h-4 text-primary-accent" />
+                            {t('user.chats')}
+                          </Link>
+                          <Link
                             href="/favorites"
                             className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             onClick={() => setIsUserMenuOpen(false)}
@@ -345,7 +361,7 @@ export function Header() {
 
         {/* Search Bar */}
         <div className="border-t border-gray-100">
-          <div className="container mx-auto px-4 py-4">
+          <div className="mx-auto py-4">
             <SearchBar />
           </div>
         </div>
