@@ -1,8 +1,8 @@
 "use client";
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
-import { MessageCircle, Search, MoreVertical, Clock, Check, CheckCheck, User } from 'lucide-react';
+import { MessageCircle, Search, Clock, User } from 'lucide-react';
 import { ChatPreview } from '@/types/chat';
 
 // Mock data for chats

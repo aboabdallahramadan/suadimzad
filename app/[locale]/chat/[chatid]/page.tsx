@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { ArrowLeft, User, Send } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { Chat, Message } from '@/types/chat';
@@ -76,7 +76,7 @@ const mockMessages: Message[] = [
 export default function ChatPage() {
   const t = useTranslations();
   const params = useParams();
-  const router = useRouter();
+  // const router = useRouter();
   const [chat] = useState<Chat>(mockChat);
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [newMessage, setNewMessage] = useState('');

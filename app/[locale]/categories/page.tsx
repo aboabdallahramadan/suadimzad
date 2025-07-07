@@ -1,9 +1,9 @@
 import { CategoriesGrid } from '@/components/category/CategoriesGrid'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 import React from 'react'
 
-const page = () => {
-    const t = useTranslations('categories')
+const page = async () => {
+    const t = await getTranslations('categories')
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="container mx-auto px-4 py-8">
