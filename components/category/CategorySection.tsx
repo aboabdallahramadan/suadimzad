@@ -42,14 +42,14 @@ interface CategorySectionProps {
               href={`/${sub.id}`}
               className={`group block sm:${getColSpanClass(index)}`}
             >
-              <div className={`bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-2xl p-4 hover:shadow-xl hover:scale-[1.02] hover:border-primary-accent/30 transition-all duration-300 relative h-28 overflow-hidden`}>
+              <div className={`bg-secondary-gray border border-gray-200 rounded-2xl p-4 hover:shadow-xl hover:scale-[1.02] hover:border-primary-accent/30 transition-all duration-300 relative h-28 overflow-hidden`}>
                 {/* Subtle background pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
                 <div className="flex items-center justify-between h-full relative z-10">
                   {/* Text content on the left */}
                   <div className="flex-1 h-full flex flex-col justify-center pr-4">
-                    <h3 className="text-lg font-semibold text-gray-800 group-hover:text-primary-accent transition-colors duration-300 leading-tight mb-1">
+                    <h3 className="text-lg font-semibold text-white group-hover:text-primary-accent transition-colors duration-300 leading-tight mb-1">
                       {sub.title}
                     </h3>
                     <div className="w-8 h-0.5 bg-primary-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
