@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import React, { useState, useEffect } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Upload, X, Send } from 'lucide-react'
 import type { ExtraInfo } from '@/types/extraInfo'
 import WatermarkedImage from '@/components/WatermarkedImage'
@@ -16,8 +16,19 @@ interface FormData {
   extraInfo: ExtraInfo[]
 }
 
+interface Location {
+  id: string | number
+  name: string
+}
+
+interface LocationOption {
+  key: string
+  value: string
+}
+
 const PostAdPage = () => {
   const t = useTranslations()
+  const locale = useLocale()
   
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -32,6 +43,37 @@ const PostAdPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
+  const [locations, setLocations] = useState<LocationOption[]>([])
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/regions/dropdown', {
+          headers: {
+            'Accept-Language': locale
+          }
+        })
+
+        if (!response.ok) {
+          console.error('Failed to fetch locations:', response.statusText)
+          return
+        }
+
+        const responseData = await response.json()
+        
+        if (responseData.success && Array.isArray(responseData.data)) {
+          const formattedLocations = responseData.data.map((loc: Location) => ({ key: String(loc.id), value: loc.name }))
+          setLocations(formattedLocations)
+        } else {
+          console.error('Failed to fetch locations:', responseData.message || 'Response data is not in the expected format.')
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error)
+      }
+    }
+
+    fetchLocations()
+  }, [locale])
 
   // Subcategory-specific extra information fields
   const subcategoryExtraFields: Record<string, string[]> = {
@@ -45,14 +87,8 @@ const PostAdPage = () => {
     others: []
   }
 
-  // Available Locations
-  const locations = [
-    { key: 'Riyadh', value: t('locations.Riyadh') },
-    { key: 'Jeddah', value: t('locations.Jeddah') },
-    { key: 'Mecca', value: t('locations.Mecca') },
-    { key: 'Medina', value: t('locations.Medina') },
-  ]
-
+  // Available Locations (now fetched from API)
+  
   // Available subcategories (simplified - in real app would be dynamic based on category)
   const subcategories = [
     { key: 'propertiesForRent', value: t('subCategories.propertiesForRent') },
