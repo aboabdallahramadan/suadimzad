@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { AdSmall } from '@/types/adSmall';
 import { Heart, MessageCircle, Clock, MapPin } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from './WatermarkedImgTag';
 
-// Dummy data for ads
+// Dummy data for ads with fixed dates to prevent hydration errors
 const generateDummyAds = (count: number, startId: number = 1): AdSmall[] => {
   const categories = ['Cars', 'Electronics', 'Real Estate', 'Furniture', 'Services', 'Jobs'];
   const locations = ['Doha', 'Al Rayyan', 'Al Wakrah', 'Umm Salal', 'Al Khor', 'Al Shamal'];
@@ -34,6 +34,15 @@ const generateDummyAds = (count: number, startId: number = 1): AdSmall[] => {
     'BMW X5 2022 - Luxury SUV'
   ];
 
+  // Define fixed timestamps to avoid hydration issues
+  const timestamps = [
+    '2023-04-01T12:00:00Z', // 1 month ago
+    '2023-04-15T12:00:00Z', // 2 weeks ago
+    '2023-04-22T12:00:00Z', // 1 week ago
+    '2023-04-28T12:00:00Z', // 1 day ago
+    '2023-04-29T12:00:00Z'  // today
+  ];
+
   return Array.from({ length: count }, (_, index) => ({
     id: (startId + index).toString(),
     title: titles[index % titles.length],
@@ -43,15 +52,22 @@ const generateDummyAds = (count: number, startId: number = 1): AdSmall[] => {
     likes: Math.floor(Math.random() * 100) + 5,
     category: categories[index % categories.length],
     location: locations[index % locations.length],
-    createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString()
+    createdAt: timestamps[index % timestamps.length]
   }));
 };
 
 const AdsSection: React.FC = () => {
   const t = useTranslations();
-  const [ads, setAds] = useState<AdSmall[]>(generateDummyAds(12));
+  const [ads, setAds] = useState<AdSmall[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize ads only on the client side
+  useEffect(() => {
+    setAds(generateDummyAds(12));
+    setMounted(true);
+  }, []);
 
   const loadMoreAds = async () => {
     setLoading(true);
@@ -75,6 +91,8 @@ const AdsSection: React.FC = () => {
   };
 
   const getTimeAgo = (dateString: string) => {
+    if (!mounted) return ''; // Return empty string during server-side rendering
+    
     const now = new Date();
     const date = new Date(dateString);
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
@@ -132,7 +150,7 @@ const AdsSection: React.FC = () => {
                   <MapPin className="w-4 h-4 mr-1" />
                   <span>{ad.location}</span>
                   <Clock className="w-4 h-4 ml-3 mr-1" />
-                  <span>{getTimeAgo(ad.createdAt)}</span>
+                  <span>{mounted ? getTimeAgo(ad.createdAt) : ''}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -156,7 +174,7 @@ const AdsSection: React.FC = () => {
         </div>
 
         {/* Load More Button */}
-        {hasMore && (
+        {mounted && hasMore && (
           <div className="text-center">
             <button
               onClick={loadMoreAds}
@@ -184,7 +202,7 @@ const AdsSection: React.FC = () => {
         )}
 
         {/* No More Ads Message */}
-        {!hasMore && (
+        {mounted && !hasMore && (
           <div className="text-center">
             <p className="text-gray-500 text-lg">{t('ads.noMoreAds')}</p>
           </div>

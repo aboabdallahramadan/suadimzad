@@ -20,6 +20,7 @@ export function BannerCarousel() {
           }
         });
         const data = await response.json();
+        console.log(data);
         if (data.success && Array.isArray(data.data)) {
           setBanners(data.data);
         }

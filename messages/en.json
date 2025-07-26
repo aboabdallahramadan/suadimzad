@@ -158,6 +158,7 @@
       "success": "Ad posted successfully!",
       "error": "Error posting ad. Please try again.",
       "selectLocation": "Select a location",
+      "selectCategoryFirst": "Please select a category first to see relevant information fields",
       "selectSubcategoryFirst": "Please select a subcategory first to see relevant information fields"
     },
     "adDetails": {
@@ -337,7 +338,8 @@
       "noAdsDescUser": "This user hasn't posted any ads yet",
       "likes": "likes",
       "comments": "comments",
-      "chats": "Chats"
+      "chats": "Chats",
+      "register": "Register"
     },
     "profile": {
       "title": "Profile",
