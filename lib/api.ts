@@ -34,10 +34,7 @@ api.interceptors.request.use(
 // Types for API responses
 export interface ApiResponse<T> {
   success: boolean;
-  message: {
-    arabic: string;
-    english: string;
-  };
+  message: string;
   data?: T;
 }
 
@@ -59,16 +56,20 @@ interface VerifyOtpResponse {
 }
 
 // Function to login with phone number
-export async function loginWithPhone(phoneNumber: string): Promise<ApiResponse<LoginResponse>> {
+export async function loginWithPhone(phoneNumber: string, locale: string): Promise<ApiResponse<LoginResponse>> {
   try {
     const response = await api.post<ApiResponse<LoginResponse>>('/User/login', {
       phoneNumber,
+    }, {
+      headers: {
+        'Accept-Language': locale,
+      },
     });
     
     const data = response.data;
     
     if (!data.success) {
-      throw new Error(data.message.english);
+      throw new Error(data.message);
     }
     
     return data;
@@ -83,17 +84,21 @@ export async function loginWithPhone(phoneNumber: string): Promise<ApiResponse<L
 }
 
 // Function to verify OTP
-export async function verifyOtp(userId: number, otp: string): Promise<ApiResponse<VerifyOtpResponse>> {
+export async function verifyOtp(userId: number, otp: string, locale: string): Promise<ApiResponse<VerifyOtpResponse>> {
   try {
     const response = await api.post<ApiResponse<VerifyOtpResponse>>('/User/verify-otp', {
       userId,
       otp,
+    }, {
+      headers: {
+        'Accept-Language': locale,
+      },
     });
     
     const data = response.data;
     
     if (!data.success) {
-      throw new Error(data.message.english);
+      throw new Error(data.message);
     }
     
     // If verification is successful, store the token in localStorage
@@ -114,17 +119,21 @@ export async function verifyOtp(userId: number, otp: string): Promise<ApiRespons
 }
 
 // Function to register a new user
-export async function registerUser(name: string, phoneNumber: string): Promise<ApiResponse<UserData>> {
+export async function registerUser(name: string, phoneNumber: string, locale: string): Promise<ApiResponse<UserData>> {
   try {
     const response = await api.post<ApiResponse<UserData>>('/User/register', {
       name,
       phoneNumber,
+    }, {
+      headers: {
+        'Accept-Language': locale,
+      },
     });
     
     const data = response.data;
     
     if (!data.success) {
-      throw new Error(data.message.english);
+      throw new Error(data.message);
     }
     
     return data;
@@ -139,7 +148,7 @@ export async function registerUser(name: string, phoneNumber: string): Promise<A
 }
 
 // Function to get user profile (requires authentication)
-export async function getUserProfile(): Promise<ApiResponse<UserData>> {
+export async function getUserProfile(locale: string): Promise<ApiResponse<UserData>> {
   try {
     if (!isBrowser) {
       throw new Error('This function can only be called in browser environment');
@@ -151,12 +160,16 @@ export async function getUserProfile(): Promise<ApiResponse<UserData>> {
       throw new Error('Authentication required');
     }
     
-    const response = await api.get<ApiResponse<UserData>>('/User/profile');
+    const response = await api.get<ApiResponse<UserData>>('/User/profile', {
+      headers: {
+        'Accept-Language': locale,
+      },
+    });
     
     const data = response.data;
     
     if (!data.success) {
-      throw new Error(data.message.english);
+      throw new Error(data.message);
     }
     
     return data;
@@ -167,7 +180,7 @@ export async function getUserProfile(): Promise<ApiResponse<UserData>> {
         logout();
       }
       console.error('Get profile error:', error.response.data);
-      throw new Error(error.response.data?.message?.english || 'Failed to get profile');
+      throw new Error(error.response.data?.message || 'Failed to get profile');
     }
     console.error('Get profile error:', error);
     throw error;

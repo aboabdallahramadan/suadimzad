@@ -29,7 +29,7 @@ const UserProfileSection = ({ user }: UserProfileSectionProps) => {
             <div className="flex items-center justify-between flex-col lg:flex-row gap-4">
                 <div className="flex items-center space-x-4 flex-col lg:flex-row ">
                     <WatermarkedImgTag
-                        src={user.avatar} 
+                        src={`http://localhost:5000/uploads/${user.avatar}`}
                         alt={user.name}
                         className="w-16 h-16 rounded-full object-cover"
                         watermarkPosition="bottom-right"
@@ -37,13 +37,13 @@ const UserProfileSection = ({ user }: UserProfileSectionProps) => {
                     />
                     <div>
                         <div className="flex items-center space-x-2">
-                        <h3 className="font-semibold text-lg text-primary-color">{user.name}</h3>
-                        <button className="text-primary-accent hover:text-primary-color text-sm">+ {t("userProfile.follow")}</button>
+                            <h3 className="font-semibold text-lg text-primary-color">{user.name}</h3>
+                            <button className="text-primary-accent hover:text-primary-color text-sm">+ {t("userProfile.follow")}</button>
                         </div>
                         <p className="text-secondary-gray text-sm">{t("userProfile.memberSince")}: {user.memberSince}</p>
                     </div>
                 </div>
-                
+
                 <div className="flex space-x-3">
                     <Link href={`/chat/${user.id}`} className="flex items-center space-x-2 bg-primary-color text-white p-2 sm:px-4 sm:py-2 rounded-lg hover:bg-primary-dark">
                         <MessageCircle className="w-5 h-5" />
@@ -62,6 +62,7 @@ const UserProfileSection = ({ user }: UserProfileSectionProps) => {
                 </div>
             </div>
         </div>
-)}
+    )
+}
 
 export default UserProfileSection

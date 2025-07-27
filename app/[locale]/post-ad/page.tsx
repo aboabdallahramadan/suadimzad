@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Upload, X, Send } from 'lucide-react'
-import type { ExtraInfo } from '@/types/extraInfo'
 import WatermarkedImage from '@/components/WatermarkedImage'
 import SearchableSelect from '@/components/SearchableSelect'
+import { useAuth } from '@/lib/auth-context'
+import { useRouter } from 'next/navigation'
 
 interface FormData {
   title: string
@@ -14,7 +15,6 @@ interface FormData {
   price: number | ''
   locationId: string
   images: string[]
-  extraInfo: ExtraInfo[]
 }
 
 interface Location {
@@ -35,6 +35,9 @@ interface LocationOption {
 const PostAdPage = () => {
   const t = useTranslations()
   const locale = useLocale()
+  const { getToken } = useAuth()
+  const router = useRouter()
+  console.log(getToken())
 
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -42,8 +45,7 @@ const PostAdPage = () => {
     categoryId: '',
     price: '',
     locationId: '',
-    images: [],
-    extraInfo: []
+    images: []
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -51,7 +53,14 @@ const PostAdPage = () => {
   const [dragActive, setDragActive] = useState(false)
   const [locations, setLocations] = useState<LocationOption[]>([])
   const [categories, setCategories] = useState<LocationOption[]>([])
-  const [extraFields, setExtraFields] = useState<string[]>([])
+
+  // Check if user is authenticated
+  useEffect(() => {
+    if (!getToken()) {
+      // Redirect to login page if not authenticated
+      router.push(`/${locale}/login?redirect=/post-ad`)
+    }
+  }, [getToken, router, locale])
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -86,7 +95,7 @@ const PostAdPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/categories/dropdown', {
+        const response = await fetch('http://localhost:5000/api/customer/categories/dropdown', {
           headers: {
             'Accept-Language': locale
           }
@@ -119,48 +128,6 @@ const PostAdPage = () => {
     fetchCategories()
   }, [locale])
 
-  useEffect(() => {
-    const fetchExtraFields = async () => {
-      if (formData.categoryId) {
-        try {
-          const response = await fetch(
-            `http://localhost:5000/api/admin/categories/${formData.categoryId}/extra-fields`
-          )
-          if (!response.ok) {
-            console.error('Failed to fetch extra fields:', response.statusText)
-            setExtraFields([])
-            return
-          }
-          const responseData = await response.json()
-          if (responseData.success && Array.isArray(responseData.data)) {
-            setExtraFields(responseData.data)
-            const newExtraInfo = responseData.data.map((fieldKey: string) => ({
-              name: fieldKey,
-              value: ''
-            }))
-            setFormData(prev => ({
-              ...prev,
-              extraInfo: newExtraInfo
-            }))
-          } else {
-            console.error(
-              'Failed to fetch extra fields:',
-              responseData.message || 'Response data is not in the expected format.'
-            )
-            setExtraFields([])
-          }
-        } catch (error) {
-          console.error('Error fetching extra fields:', error)
-          setExtraFields([])
-        }
-      } else {
-        setExtraFields([])
-        setFormData(prev => ({ ...prev, extraInfo: [] }))
-      }
-    }
-    fetchExtraFields()
-  }, [formData.categoryId])
-
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -174,11 +141,23 @@ const PostAdPage = () => {
         [field]: ''
       }))
     }
+  }
 
-    // If category is changed, clear extra info
-    if (field === 'categoryId') {
-      setFormData(prev => ({ ...prev, extraInfo: [] }))
+  // Convert base64 image string to File object
+  const base64ToFile = (base64String: string, index: number): File => {
+    // Extract the content type and base64 data
+    const contentType = base64String.split(';')[0].split(':')[1]
+    const byteCharacters = atob(base64String.split(',')[1])
+    const byteNumbers = new Array(byteCharacters.length)
+
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i)
     }
+
+    const byteArray = new Uint8Array(byteNumbers)
+    const blob = new Blob([byteArray], { type: contentType })
+
+    return new File([blob], `image-${index}.${contentType.split('/')[1]}`, { type: contentType })
   }
 
   const handleImageUpload = (files: FileList | null) => {
@@ -204,23 +183,6 @@ const PostAdPage = () => {
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
-    }))
-  }
-
-  const getFieldDisplayName = (fieldKey: string) => {
-    // Check if it's a predefined field
-    if (t.raw(`extraFields.${fieldKey}`)) {
-      return t(`extraFields.${fieldKey}`)
-    }
-    return fieldKey
-  }
-
-  const updateExtraInfo = (index: number, field: 'name' | 'value', value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      extraInfo: prev.extraInfo.map((info, i) =>
-        i === index ? { ...info, [field]: value } : info
-      )
     }))
   }
 
@@ -254,14 +216,6 @@ const PostAdPage = () => {
     if (!formData.locationId) newErrors.locationId = t('postAd.required')
     if (formData.images.length === 0) newErrors.images = t('postAd.required')
 
-    // Validate required extra info fields for the selected category
-    extraFields.forEach(fieldKey => {
-      const field = formData.extraInfo.find(info => info.name === fieldKey)
-      if (!field || !field.value.trim()) {
-        newErrors[`extraInfo_${fieldKey}`] = `${getFieldDisplayName(fieldKey)} is required`
-      }
-    })
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -271,29 +225,69 @@ const PostAdPage = () => {
 
     if (!validateForm()) return
 
+    // Check if user is authenticated
+    if (!getToken()) {
+      router.push(`/${locale}/login?redirect=/post-ad`)
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Create a FormData object to send as multipart/form-data
+      const formDataToSend = new FormData()
 
-      // In real app, you would make an API call here
-      console.log('Form data:', formData)
+      // Add basic fields
+      formDataToSend.append('Name', formData.title)
+      formDataToSend.append('Description', formData.description)
+      formDataToSend.append('Price', String(formData.price))
+      formDataToSend.append('CategoryId', formData.categoryId)
+      formDataToSend.append('RegionId', formData.locationId)
 
-      alert(t('postAd.success'))
-
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        categoryId: '',
-        price: '',
-        locationId: '',
-        images: [],
-        extraInfo: []
+      // Convert base64 images to files and append
+      formData.images.forEach((base64Image, index) => {
+        const file = base64ToFile(base64Image, index)
+        formDataToSend.append('Images', file)
       })
 
-    } catch {
+      // Get token from localStorage
+      const token = getToken()
+
+      // Make API call
+      const response = await fetch('http://localhost:5000/api/offers/create', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept-Language': locale
+        },
+        body: formDataToSend
+      })
+
+      const responseData = await response.json()
+      console.log(responseData)
+
+      if (responseData.success) {
+        // alert(t('postAd.success'))
+
+        // Reset form
+        setFormData({
+          title: '',
+          description: '',
+          categoryId: '',
+          price: '',
+          locationId: '',
+          images: []
+        })
+
+        // Redirect to the created offer page
+        if (responseData.data && responseData.data.id) {
+          router.push(`/${locale}/ad/${responseData.data.id}`)
+        }
+      } else {
+        alert(responseData.Message || t('postAd.error'))
+      }
+    } catch (error) {
+      console.error('Error creating offer:', error)
       alert(t('postAd.error'))
     } finally {
       setIsLoading(false)
@@ -331,9 +325,8 @@ const PostAdPage = () => {
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   placeholder={t('postAd.titlePlaceholder')}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${
-                    errors.title ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
               </div>
@@ -363,15 +356,14 @@ const PostAdPage = () => {
                   value={formData.price}
                   onChange={(e) => handleInputChange('price', e.target.value)}
                   placeholder={t('postAd.pricePlaceholder')}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${
-                    errors.price ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${errors.price ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
               </div>
 
               {/* Location */}
-                <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('postAd.location')} <span className="text-red-500">*</span>
                 </label>
@@ -395,9 +387,8 @@ const PostAdPage = () => {
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   placeholder={t('postAd.descriptionPlaceholder')}
                   rows={4}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${
-                    errors.description ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
               </div>
@@ -412,11 +403,10 @@ const PostAdPage = () => {
 
             {/* Image Upload Area */}
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
                   ? 'border-primary-accent bg-light-blue'
                   : errors.images ? 'border-red-500' : 'border-gray-300'
-              }`}
+                }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
@@ -465,52 +455,6 @@ const PostAdPage = () => {
                     </button>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-
-
-          {/* Extra Information Section */}
-          <div className="bg-white rounded-lg p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-primary-color">
-                {t('postAd.extraInfo')}
-              </h2>
-            </div>
-
-            {!formData.categoryId && (
-              <p className="text-secondary-gray text-center py-8">
-                {t('postAd.selectCategoryFirst')}
-              </p>
-            )}
-
-            {formData.extraInfo.length > 0 && (
-              <div className="space-y-4">
-                {formData.extraInfo.map((info, index) => {
-                  const isRequired = extraFields.includes(info.name)
-
-                  return (
-                    <div key={index} className="flex gap-4 items-end">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {getFieldDisplayName(info.name)} {isRequired && <span className="text-red-500">*</span>}
-                        </label>
-                        <input
-                          type="text"
-                          value={info.value}
-                          onChange={(e) => updateExtraInfo(index, 'value', e.target.value)}
-                          placeholder={`Enter ${getFieldDisplayName(info.name).toLowerCase()}`}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-accent focus:border-transparent ${
-                            errors[`extraInfo_${info.name}`] ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                        />
-                        {errors[`extraInfo_${info.name}`] && (
-                          <p className="text-red-500 text-sm mt-1">{errors[`extraInfo_${info.name}`]}</p>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
               </div>
             )}
           </div>

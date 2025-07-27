@@ -106,7 +106,8 @@
       "searchPlaceholder": "Search for anything...",
       "loading": "Loading...",
       "error": "Error occurred",
-      "home": "Home"
+      "home": "Home",
+      "backToChats": "Back to Chats"
     },
     "footer": {
       "description": "Top Classified Site in Gulf. Post free ads. Buy and sell used cars, apartment for rent, search jobs and more cheap quality items in Gulf",
@@ -358,7 +359,12 @@
       "addComment": "Add comment",
       "addCommentPlaceholder": "Enter comment here",
       "comments": "Comments",
-      "noComments": "No comments yet"
+      "noComments": "No comments yet",
+      "showReplies": "Show Replies",
+      "hideReplies": "Hide Replies",
+      "reply": "Reply",
+      "replyPlaceholder": "Write your reply here",
+      "noReplies": "No replies yet"
     },
     "chat": {
       "title": "Messages",

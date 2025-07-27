@@ -1,45 +1,30 @@
 "use client";
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { useState } from 'react';
 import { loginWithPhone } from '@/lib/api';
-
-const countryCodes = [
-  { code: '+974', country: 'Qatar', flag: '🇶🇦' },
-  { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦' },
-  { code: '+971', country: 'UAE', flag: '🇦🇪' },
-  { code: '+965', country: 'Kuwait', flag: '🇰🇼' },
-  { code: '+973', country: 'Bahrain', flag: '🇧🇭' },
-  { code: '+968', country: 'Oman', flag: '🇴🇲' },
-  { code: '+1', country: 'USA', flag: '🇺🇸' },
-  { code: '+44', country: 'UK', flag: '🇬🇧' },
-  { code: '+91', country: 'India', flag: '🇮🇳' },
-  { code: '+20', country: 'Egypt', flag: '🇪🇬' },
-];
 
 export default function LoginPage() {
   const t = useTranslations();
   const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [countryCode, setCountryCode] = useState('+974');
-  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const locale = useLocale()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (phoneNumber.trim()) {
       setIsLoading(true);
       try {
-        const fullPhoneNumber = countryCode + phoneNumber;
-        const response = await loginWithPhone(fullPhoneNumber);
-        
+        const response = await loginWithPhone(phoneNumber, locale);
+
         if (response.success && response.data) {
           const userId = response.data.userId;
-          router.push(`/otp?phone=${encodeURIComponent(fullPhoneNumber)}&type=login&userId=${userId}`);
+          router.push(`/otp?phone=${encodeURIComponent(phoneNumber)}&type=login&userId=${userId}`);
         }
       } catch (err) {
         if (err instanceof Error) {
@@ -52,8 +37,6 @@ export default function LoginPage() {
       }
     }
   };
-
-  const selectedCountry = countryCodes.find(c => c.code === countryCode);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-bg via-blue-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -83,49 +66,13 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-3">
                 {t('auth.phoneNumber')}
               </label>
               <div className="relative">
-                {/* Country Code Selector */}
-                <div className="absolute inset-y-0 left-0 flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-r border-gray-300 rounded-l-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-primary-accent transition-colors duration-200"
-                  >
-                    <span className="mr-2 text-lg">{selectedCountry?.flag}</span>
-                    <span className="mr-1">{countryCode}</span>
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  {/* Country Dropdown */}
-                  {isCountryDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-                      {countryCodes.map((country) => (
-                        <button
-                          key={country.code}
-                          type="button"
-                          onClick={() => {
-                            setCountryCode(country.code);
-                            setIsCountryDropdownOpen(false);
-                          }}
-                          className="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
-                        >
-                          <span className="mr-3 text-lg">{country.flag}</span>
-                          <span className="mr-2 font-medium">{country.code}</span>
-                          <span className="text-gray-600">{country.country}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                
                 {/* Phone Number Input */}
                 <input
                   id="phone"
@@ -135,7 +82,7 @@ export default function LoginPage() {
                   required
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="block w-full pl-24 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-primary-accent transition-all duration-200 text-lg"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-primary-accent transition-all duration-200 text-lg"
                   placeholder="12345678"
                 />
               </div>

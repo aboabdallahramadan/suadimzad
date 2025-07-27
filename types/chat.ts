@@ -1,31 +1,31 @@
-export interface ChatUser {
-  id: string;
+export interface User {
+  id: number;
   name: string;
-  avatar?: string;
+  phoneNumber: string;
+  profilePhotoUrl: string | null;
 }
 
 export interface Message {
-  id: string;
-  chatId: string;
-  senderId: string;
-  content: string;
-  timestamp: Date;
+  id: number;
+  message: string;
+  date: string;
+  senderId: number;
+  receiverId: number;
+  isRead: boolean;
+  readDate: string | null;
 }
 
 export interface Chat {
-  id: string;
-  participants: ChatUser[];
-  lastMessage?: Message;
-  lastMessageTime?: Date;
-  unreadCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ChatPreview {
-  id: string;
-  otherUser: ChatUser;
-  lastMessage?: string;
-  lastMessageTime?: Date;
-  unreadCount: number;
+  id: number;
+  user: User;
+  lastMessage?: {
+    id: number;
+    message: string;
+    date: string;
+    senderId: number;
+    receiverId: number;
+    isRead: boolean;
+    readDate: string | null;
+  };
+  unreadCount?: number;
 } 

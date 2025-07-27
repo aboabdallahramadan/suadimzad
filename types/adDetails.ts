@@ -5,7 +5,6 @@ export type AdDetails = {
     likes: number
     category: string
     price: number
-    subcategory: string
     location: string
     extraInfo: ExtraInfo[]  // extra info like gender, nationality, qualification, experience, salary, career, isDriver, jobType
     description: string

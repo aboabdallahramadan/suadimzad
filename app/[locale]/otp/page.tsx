@@ -1,5 +1,5 @@
 "use client";
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { verifyOtp, loginWithPhone } from '@/lib/api';
@@ -10,7 +10,7 @@ export default function OTPPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser } = useAuth();
-  
+
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userId, setUserId] = useState<number | null>(null);
@@ -19,14 +19,15 @@ export default function OTPPage() {
   const [canResend, setCanResend] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
-  
+  const local = useLocale();
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const phone = searchParams.get('phone');
     const authType = searchParams.get('type');
     const userIdParam = searchParams.get('userId');
-    
+
     if (phone) setPhoneNumber(phone);
     if (authType) setType(authType);
     if (userIdParam) setUserId(parseInt(userIdParam, 10));
@@ -43,7 +44,7 @@ export default function OTPPage() {
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -64,12 +65,12 @@ export default function OTPPage() {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     const newOtp = [...otp];
-    
+
     for (let i = 0; i < pastedData.length; i++) {
       newOtp[i] = pastedData[i];
     }
     setOtp(newOtp);
-    
+
     // Focus the next empty input or the last one
     const nextIndex = Math.min(pastedData.length, 5);
     inputRefs.current[nextIndex]?.focus();
@@ -79,17 +80,17 @@ export default function OTPPage() {
     e.preventDefault();
     setError('');
     const otpCode = otp.join('');
-    
+
     if (otpCode.length === 6 && userId) {
       setIsVerifying(true);
-      
+
       try {
-        const response = await verifyOtp(userId, otpCode);
-        
+        const response = await verifyOtp(userId, otpCode, local);
+
         if (response.success && response.data) {
           // Update user in auth context
           setUser(response.data.user);
-          
+
           // Redirect to home page
           router.push('/');
         }
@@ -113,10 +114,10 @@ export default function OTPPage() {
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
-      
+
       try {
-        const response = await loginWithPhone(phoneNumber);
-        
+        const response = await loginWithPhone(phoneNumber, local);
+
         if (response.success && response.data) {
           setUserId(response.data.userId);
         }
@@ -171,7 +172,7 @@ export default function OTPPage() {
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* OTP Input */}
             <div>
