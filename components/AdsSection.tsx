@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Heart, MessageCircle, Clock, MapPin } from 'lucide-react';
+import { Heart, MessageCircle, Clock, MapPin, Eye } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from './WatermarkedImgTag';
 import axios from 'axios';
@@ -21,8 +21,9 @@ interface AdSmall {
   createdAt: string;
   description?: string;
   // We'll keep these fields for UI compatibility but they won't be populated from API
-  comments?: number;
-  likes?: number;
+  numberOfViews: number;
+  numberOfComments: number;
+  numberOfFavorites: number;
 }
 
 interface ApiResponse {
@@ -200,11 +201,15 @@ const AdsSection: React.FC = () => {
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div className="flex items-center">
                         <Heart className="w-4 h-4 mr-1" />
-                        <span>{ad.likes || 0}</span>
+                        <span>{ad.numberOfFavorites || 0}</span>
                       </div>
                       <div className="flex items-center">
                         <MessageCircle className="w-4 h-4 mr-1" />
-                        <span>{ad.comments || 0}</span>
+                        <span>{ad.numberOfComments || 0}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Eye className="w-4 h-4 mr-1" />
+                        <span>{ad.numberOfViews || 0}</span>
                       </div>
                     </div>
                   </div>

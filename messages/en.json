@@ -107,7 +107,9 @@
       "loading": "Loading...",
       "error": "Error occurred",
       "home": "Home",
-      "backToChats": "Back to Chats"
+      "backToChats": "Back to Chats",
+      "search": "Search",
+      "loadMore": "Load more"
     },
     "footer": {
       "description": "Top Classified Site in Gulf. Post free ads. Buy and sell used cars, apartment for rent, search jobs and more cheap quality items in Gulf",
@@ -168,7 +170,8 @@
       "share": "Share",
       "memberSince": "Member since",
       "showNumber": "Show number",
-      "follow": "Follow"
+      "follow": "Follow",
+      "loves": "Loves"
     },
     "locations": {
       "Riyadh": "Riyadh",
@@ -307,6 +310,7 @@
     "user": {
       "profile": "Profile",
       "favorites": "Favorites",
+      "favoriteAd": "Favorite Ad",
       "login": "Login",
       "logout": "Logout",
       "myProfile": "My Profile",
@@ -353,6 +357,7 @@
       "memberSince": "Member since",
       "showNumber": "Show number",
       "follow": "Follow",
+      "following": "Following",
       "chat": "Chat"
     },
     "comments": {
@@ -408,6 +413,9 @@
       "lastSeen": "Last seen",
       "startConversation": "Start a conversation",
       "sendYourFirstMessage": "Send your first message to start chatting"
+    },
+    "search": {
+      "searchFavorites": "Search Favorites"
     }
   }
   

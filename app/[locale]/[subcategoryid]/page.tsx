@@ -1,104 +1,256 @@
-import { getTranslations } from 'next-intl/server';
+'use client';
+
+import { use, useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { AdSmall } from '@/types/adSmall';
 import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 
-// Dummy ad data
-const dummyAds: AdSmall[] = [
-  {
-    id: '1',
-    title: 'Haring driver. snoonu.',
-    price: 6000,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop',
-    comments: 27,
-    likes: 5
-  },
-  {
-    id: '2',
-    title: 'EXCELLENT DELIVERY',
-    price: 4500,
-    image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=300&h=200&fit=crop',
-    comments: 15,
-    likes: 1
-  },
-  {
-    id: '3',
-    title: 'BARISTA STAFF HIRING',
-    price: 3500,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
-    comments: 7,
-    likes: 2
-  },
-  {
-    id: '4',
-    title: 'Delivery driver',
-    price: 6000,
-    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=200&fit=crop',
-    comments: 53,
-    likes: 15
-  },
-  {
-    id: '5',
-    title: '3d visualiser -interior design',
-    price: 4200,
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
-    comments: 12,
-    likes: 8
-  },
-  {
-    id: '6',
-    title: 'مطلوب مندوب',
-    price: 3800,
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=200&fit=crop',
-    comments: 9,
-    likes: 3
-  },{
-    id: '7',
-    title: 'EXCELLENT DELIVERY',
-    price: 4500,
-    image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=300&h=200&fit=crop',
-    comments: 15,
-    likes: 1
-  },
-  {
-    id: '8',
-    title: 'BARISTA STAFF HIRING',
-    price: 3500,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
-    comments: 7,
-    likes: 2
-  },
-  {
-    id: '9',
-    title: 'Delivery driver',
-    price: 6000,
-    image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&h=200&fit=crop',
-    comments: 53,
-    likes: 15
-  },
-  {
-    id: '10',
-    title: '3d visualiser -interior design',
-    price: 4200,
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
-    comments: 12,
-    likes: 8
-  },
-  {
-    id: '11',
-    title: 'مطلوب مندوب',
-    price: 3800,
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=200&fit=crop',
-    comments: 9,
-    likes: 3
-  },
-  
-];
+// API base URL
+const API_BASE_URL = 'http://localhost:5000';
 
-export default async function CategoryPage() {
-  const t = await getTranslations();
-  
+// Interface for API offer response
+interface ApiOfferItem {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
+  categoryName: string;
+  regionId: number;
+  regionName: string;
+  mainImageUrl: string;
+  createdAt: string;
+  numberOfFavorites: number;
+  numberOfViews: number;
+  numberOfComments: number;
+}
 
+// Interface for Location
+interface Location {
+  id: number;
+  name: string;
+}
+
+// Interface for formatted location options
+interface LocationOption {
+  key: string;
+  value: string;
+}
+
+// Function to fetch offers from API
+async function fetchOffers(params?: {
+  categoryId?: string;
+  regionId?: string;
+  limit?: number;
+  sortDescending?: boolean;
+  searchTerm?: string;
+  locale?: string;
+  cursor?: number;
+  minPrice?: number;
+  maxPrice?: number;
+}): Promise<{ offers: AdSmall[]; hasMore: boolean; nextCursor: number | null }> {
+  try {
+    const searchParams = new URLSearchParams();
+
+    if (params?.categoryId) {
+      searchParams.append('categoryId', params.categoryId);
+    }
+    if (params?.regionId) {
+      searchParams.append('regionId', params.regionId);
+    }
+    if (params?.limit) {
+      searchParams.append('limit', params.limit.toString());
+    }
+    if (params?.sortDescending !== undefined) {
+      searchParams.append('sortDescending', params.sortDescending.toString());
+    }
+    if (params?.searchTerm) {
+      searchParams.append('searchTerm', params.searchTerm);
+    }
+    if (params?.cursor) {
+      searchParams.append('cursor', params.cursor.toString());
+    }
+    if (params?.minPrice !== undefined) {
+      searchParams.append('minPrice', params.minPrice.toString());
+    }
+    if (params?.maxPrice !== undefined) {
+      searchParams.append('maxPrice', params.maxPrice.toString());
+    }
+
+    const url = `${API_BASE_URL}/api/offers?${searchParams.toString()}`;
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Accept-Language': params?.locale || 'en'
+      },
+      cache: 'no-store', // Ensure fresh data on each request
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to fetch offers');
+    }
+
+    // Transform API response to AdSmall format
+    const offers: AdSmall[] = result.data.items.map((item: ApiOfferItem) => ({
+      id: item.id.toString(),
+      title: item.name,
+      price: item.price,
+      image: `${API_BASE_URL}/uploads/${item.mainImageUrl}`,
+      comments: item.numberOfComments,
+      likes: item.numberOfFavorites,
+      category: item.categoryName,
+      location: item.regionName,
+      createdAt: item.createdAt,
+    }));
+
+    return {
+      offers,
+      hasMore: result.data.hasMore || false,
+      nextCursor: result.data.nextCursor || null
+    };
+  } catch (error) {
+    console.error('Error fetching offers:', error);
+    return { offers: [], hasMore: false, nextCursor: null }; // Return empty result on error
+  }
+}
+
+export default function CategoryPage({
+  params,
+}: {
+  params: Promise<{ subcategoryid: string }>;
+}) {
+  const resolvedParams = use(params);
+  const t = useTranslations();
+  const locale = useLocale();
+  const [offers, setOffers] = useState<AdSmall[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [locations, setLocations] = useState<LocationOption[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+  const [sortOption, setSortOption] = useState<string>('newest');
+
+  useEffect(() => {
+    const loadOffers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Determine sort parameters based on selected option
+        let sortDescending = true;
+        if (sortOption === 'oldest') {
+          sortDescending = false;
+        }
+        // Note: Price sorting would need additional API parameters if supported
+
+        const result = await fetchOffers({
+          categoryId: resolvedParams.subcategoryid,
+          regionId: selectedLocationId || undefined,
+          limit: 20,
+          sortDescending: sortDescending,
+          locale: locale,
+        });
+        setOffers(result.offers);
+        setHasMore(result.hasMore);
+        setNextCursor(result.nextCursor);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load offers');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOffers();
+  }, [resolvedParams.subcategoryid, locale, selectedLocationId, sortOption]);
+
+  const loadMoreOffers = async () => {
+    if (!hasMore || !nextCursor || loading) return;
+
+    try {
+      setLoading(true);
+
+      // Determine sort parameters based on selected option
+      let sortDescending = true;
+      if (sortOption === 'oldest') {
+        sortDescending = false;
+      }
+
+      const result = await fetchOffers({
+        categoryId: resolvedParams.subcategoryid,
+        regionId: selectedLocationId || undefined,
+        cursor: nextCursor,
+        limit: 20,
+        sortDescending: sortDescending,
+        locale: locale,
+      });
+      setOffers(prev => [...prev, ...result.offers]);
+      setHasMore(result.hasMore);
+      setNextCursor(result.nextCursor);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load more offers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLocationId(event.target.value);
+  };
+
+  const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOption(event.target.value);
+  };
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/regions/dropdown', {
+          headers: {
+            'Accept-Language': locale
+          }
+        })
+
+        if (!response.ok) {
+          console.error('Failed to fetch locations:', response.statusText)
+          return
+        }
+
+        const responseData = await response.json()
+
+        if (responseData.success && Array.isArray(responseData.data)) {
+          const formattedLocations = responseData.data.map((loc: Location) => ({ key: String(loc.id), value: loc.name }))
+          setLocations(formattedLocations)
+        } else {
+          console.error('Failed to fetch locations:', responseData.message || 'Response data is not in the expected format.')
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error)
+      }
+    }
+
+    fetchLocations()
+  }, [locale])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-primary-bg">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-accent"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-primary-bg">
@@ -108,7 +260,7 @@ export default async function CategoryPage() {
           <ol className="flex items-center space-x-2 text-sm text-gray-600">
             <li>
               <a href={`/`} className="hover:text-primary-accent">
-                  {t('common.home')}
+                {t('common.home')}
               </a>
             </li>
             <li>/</li>
@@ -118,55 +270,73 @@ export default async function CategoryPage() {
           </ol>
         </nav>
 
-
         {/* Content Area */}
         <div className="grid grid-cols-1 gap-6">
-
           {/* Listings Grid */}
           <div className="col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <select className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary-accent">
-                    <option>{t('category.allLocations')}</option>
+                  <select
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary-accent"
+                    value={selectedLocationId}
+                    onChange={handleLocationChange}
+                  >
+                    <option value="">{t('category.allLocations')}</option>
+                    {locations.map((location) => (
+                      <option key={location.key} value={location.key}>
+                        {location.value}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <select className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary-accent">
-                  <option>{t('category.newest')}</option>
-                  <option>{t('category.oldest')}</option>
-                  <option>{t('category.priceLowToHigh')}</option>
-                  <option>{t('category.priceHighToLow')}</option>
+                <select
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary-accent"
+                  value={sortOption}
+                  onChange={handleSortChange}
+                >
+                  <option value="newest">{t('category.newest')}</option>
+                  <option value="oldest">{t('category.oldest')}</option>
+                  <option value="priceLowToHigh">{t('category.priceLowToHigh')}</option>
+                  <option value="priceHighToLow">{t('category.priceHighToLow')}</option>
                 </select>
               </div>
 
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+                  <p>{error}</p>
+                </div>
+              )}
+
               {/* Conditional Content */}
-              {dummyAds.length > 0 ? (
+              {offers.length > 0 ? (
                 /* Ads Grid */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {dummyAds.map((ad) => (
+                  {offers.map((ad) => (
                     <Link key={ad.id} href={`/ad/${ad.id}`} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow relative cursor-pointer">
-                      
+
                       {/* Ad Image */}
                       <div className="aspect-[4/3] relative">
                         <WatermarkedImgTag
-                          src={ad.image} 
+                          src={ad.image}
                           alt={ad.title}
                           className="w-full h-full object-cover"
                           watermarkPosition="bottom-right"
                           watermarkSize="medium"
                         />
                       </div>
-                      
+
                       {/* Ad Content */}
                       <div className="p-4">
                         <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 text-sm">
                           {ad.title}
                         </h3>
-                        
+
                         <div className="text-lg font-bold text-primary-color mb-3">
                           {ad.price} SAR
                         </div>
-                        
+
                         {/* Stats */}
                         <div className="flex items-center justify-between text-gray-500 text-xs">
                           <div className="flex items-center space-x-3">
@@ -194,7 +364,7 @@ export default async function CategoryPage() {
                   <div className="max-w-md mx-auto">
                     <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                       <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012 2v2M7 7h10" />
                       </svg>
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -204,6 +374,26 @@ export default async function CategoryPage() {
                       {t('category.comingSoonDescription')}
                     </p>
                   </div>
+                </div>
+              )}
+
+              {/* Load More Button */}
+              {offers.length > 0 && hasMore && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={loadMoreOffers}
+                    disabled={loading}
+                    className="bg-primary-accent text-white px-6 py-3 rounded-lg hover:bg-primary-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <span className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        {t('common.loading')}
+                      </span>
+                    ) : (
+                      t('common.loadMore')
+                    )}
+                  </button>
                 </div>
               )}
             </div>

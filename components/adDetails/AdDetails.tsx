@@ -1,19 +1,61 @@
 "use client"
 import { AdDetails as AdDetailsType } from '@/types/adDetails'
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { useLocale } from 'next-intl';
+import { useAuth } from '@/lib/auth-context';
 
 interface AdDetailsProps {
   adDetails: AdDetailsType
 }
 
-const AdDetails = ({ adDetails }: AdDetailsProps) => {
+const AdDetails = ({ adDetails: initialAdDetails }: AdDetailsProps) => {
+  const locale = useLocale();
+  const { getToken } = useAuth();
+  const [adDetails, setAdDetails] = useState(initialAdDetails);
   const t = useTranslations();
+
+  const toggleFavorite = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/offers/${adDetails.id}/favorite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`,
+          'Accept-Language': locale
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setAdDetails({
+          ...adDetails,
+          isFavorite: !adDetails.isFavorite,
+          numberOfFavorites: adDetails.isFavorite
+            ? adDetails.numberOfFavorites - 1
+            : adDetails.numberOfFavorites + 1
+        });
+
+        console.log(result.message);
+      } else {
+        console.log(result.message);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
       <div className="flex justify-between items-start mb-4">
         <h1 className="text-2xl font-semibold text-primary-color">{adDetails.title}</h1>
-        <button className="text-secondary-gray hover:text-primary-accent">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button
+          className="text-secondary-gray hover:text-primary-accent"
+          onClick={toggleFavorite}
+          aria-label={adDetails.isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <svg className="w-6 h-6" fill={adDetails.isFavorite ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
         </button>
@@ -28,7 +70,7 @@ const AdDetails = ({ adDetails }: AdDetailsProps) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
-          {adDetails.views.toLocaleString()}
+          {adDetails.numberOfViews.toLocaleString()}
         </span>
       </div>
 
@@ -54,12 +96,12 @@ const AdDetails = ({ adDetails }: AdDetailsProps) => {
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-4">
-        <button className="flex items-center space-x-2 px-4 py-2 border border-primary-accent text-primary-accent rounded-lg hover:bg-light-blue">
-          <span>{adDetails.likes}</span>
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+        <div className="flex items-center space-x-2 px-4 py-2 border border-primary-accent text-primary-accent rounded-lg hover:bg-light-blue">
+          <span>{adDetails.numberOfFavorites} {t("adDetails.loves")}</span>
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
           </svg>
-        </button>
+        </div>
         <button
           onClick={() => {
             if (navigator.share) {

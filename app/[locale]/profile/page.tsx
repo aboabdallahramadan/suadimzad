@@ -1,11 +1,12 @@
 "use client";
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { User, Phone, Calendar, Users, Heart, Share2, UserCheck } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 import axios from 'axios';
 import { useAuth } from '@/lib/auth-context';
+import { toggleFollow } from '@/lib/api';
 
 // API types
 interface UserProfile {
@@ -14,12 +15,11 @@ interface UserProfile {
   phoneNumber: string;
   userType: number;
   profilePhotoUrl: string | null;
-  followedUsers: FollowedUser[];
   offers: Offer[];
 }
 
 interface FollowedUser {
-  id: number;
+  id: string;
   name: string;
   phoneNumber: string;
   profilePhotoUrl: string | null;
@@ -41,24 +41,30 @@ interface Offer {
 interface ApiResponse {
   data: UserProfile | null;
   success: boolean;
-  message: {
-    arabic: string;
-    english: string;
-  };
+  message: string;
+}
+
+interface FollowersApiResponse {
+  data: FollowedUser[];
+  success: boolean;
+  message: string;
 }
 
 export default function ProfilePage() {
   const t = useTranslations();
   const [activeTab, setActiveTab] = useState('info');
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [followedUsers, setFollowedUsers] = useState<FollowedUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [followersLoading, setFollowersLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [followersError, setFollowersError] = useState<string | null>(null);
   const { getToken } = useAuth();
+  const locale = useLocale();
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
-        // Get the token from localStorage or your auth context
         const token = getToken();
 
         if (!token) {
@@ -69,14 +75,15 @@ export default function ProfilePage() {
 
         const response = await axios.get<ApiResponse>('http://localhost:5000/api/User/profile', {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'Accept-Language': locale,
           }
         });
 
         if (response.data.success && response.data.data) {
           setProfile(response.data.data);
         } else {
-          setError(response.data.message.english);
+          setError(response.data.message);
         }
       } catch (err) {
         setError('Failed to fetch profile data');
@@ -87,17 +94,62 @@ export default function ProfilePage() {
     };
 
     fetchUserProfile();
-  }, []);
+  }, [getToken]);
 
-  const handleUnfollow = async (userId: number) => {
-    // Implementation for unfollowing a user would go here
-    // This would involve making an API call to unfollow the user
-    // For now, just update the state locally
-    if (profile) {
-      setProfile({
-        ...profile,
-        followedUsers: profile.followedUsers.filter(user => user.id !== userId)
+  const fetchFollowedUsers = async () => {
+    try {
+      setFollowersLoading(true);
+      setFollowersError(null);
+      const token = getToken();
+
+      if (!token) {
+        setFollowersError('Not authenticated');
+        return;
+      }
+
+      const response = await axios.get<FollowersApiResponse>('http://localhost:5000/api/followers/following', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Accept-Language': locale,
+        }
       });
+
+      if (response.data.success) {
+        setFollowedUsers(response.data.data || []);
+      } else {
+        setFollowersError(response.data.message || 'Failed to fetch followed users');
+      }
+    } catch (err) {
+      setFollowersError('Failed to fetch followed users');
+      console.error(err);
+    } finally {
+      setFollowersLoading(false);
+    }
+  };
+
+  // Fetch followed users when switching to following tab
+  useEffect(() => {
+    if (activeTab === 'following' && followedUsers.length === 0 && !followersLoading) {
+      fetchFollowedUsers();
+    }
+  }, [activeTab]);
+
+  const handleUnfollow = async (userId: string) => {
+    try {
+      const response = await toggleFollow(parseInt(userId), locale);
+
+      if (response.success) {
+        // If the user is now unfollowed, remove them from the list
+        if (!response.data?.isFollowed) {
+          setFollowedUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        }
+      } else {
+        console.error('Failed to unfollow user:', response.message);
+        alert(response.message || 'Failed to unfollow user');
+      }
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+      alert('Failed to unfollow user. Please try again.');
     }
   };
 
@@ -144,7 +196,7 @@ export default function ProfilePage() {
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                 {profile.profilePhotoUrl ? (
                   <img
-                    src={profile.profilePhotoUrl}
+                    src={`http://localhost:5000/uploads/${profile.profilePhotoUrl}`}
                     alt={profile.name}
                     className="w-full h-full object-cover rounded-full"
                   />
@@ -179,7 +231,9 @@ export default function ProfilePage() {
                     <div className="text-xs sm:text-sm text-gray-500">{t('user.followers')}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{profile.followedUsers.length}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {followersLoading ? '...' : followedUsers.length}
+                    </div>
                     <div className="text-xs sm:text-sm text-gray-500">{t('user.following')}</div>
                   </div>
                 </div>
@@ -247,10 +301,29 @@ export default function ProfilePage() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{t('user.followingUsers')}</h2>
-                  <span className="text-sm text-gray-500">{profile.followedUsers.length} {t('user.following').toLowerCase()}</span>
+                  <span className="text-sm text-gray-500">
+                    {followersLoading ? '...' : followedUsers.length} {t('user.following').toLowerCase()}
+                  </span>
                 </div>
 
-                {profile.followedUsers.length === 0 ? (
+                {followersLoading ? (
+                  <div className="text-center py-12">
+                    <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-500">{t('common.loading')}</p>
+                  </div>
+                ) : followersError ? (
+                  <div className="text-center py-12">
+                    <Users className="w-16 h-16 text-red-300 mx-auto mb-4" />
+                    <p className="text-red-500 font-medium text-lg">{t('common.error')}</p>
+                    <p className="text-gray-400 mt-2">{followersError}</p>
+                    <button
+                      onClick={fetchFollowedUsers}
+                      className="mt-4 px-4 py-2 bg-primary-accent text-white rounded-lg hover:bg-primary-dark transition-colors"
+                    >
+                      {t('common.tryAgain')}
+                    </button>
+                  </div>
+                ) : followedUsers.length === 0 ? (
                   <div className="text-center py-12">
                     <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500 font-medium text-lg">{t('user.noFollowing')}</p>
@@ -258,13 +331,13 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="grid gap-4">
-                    {profile.followedUsers.map((user) => (
+                    {followedUsers.map((user) => (
                       <div key={user.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center overflow-hidden">
                             {user.profilePhotoUrl ? (
                               <img
-                                src={user.profilePhotoUrl}
+                                src={`http://localhost:5000/uploads/${user.profilePhotoUrl}`}
                                 alt={user.name}
                                 className="w-full h-full object-cover"
                               />

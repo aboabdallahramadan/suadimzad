@@ -8,6 +8,7 @@ interface ApiSubCategory {
   id: number;
   name: string;
   imageUrl: string;
+  numberOfOffers: number;
 }
 
 interface ApiCategory {
@@ -39,6 +40,7 @@ export function CategoriesGrid() {
           throw new Error('Network response was not ok');
         }
         if (result.success && result.data) {
+          console.log(result.data);
           const mappedCategories: Category[] = result.data.map((category: ApiCategory) => ({
             id: category.id.toString(),
             title: category.name,

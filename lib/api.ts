@@ -36,15 +36,46 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data?: T;
+  exception?: string;
+  stackTrace?: string;
 }
 
 interface UserData {
   id: number;
   name: string;
   phoneNumber: string;
-  userType: number;
-  profilePhotoUrl?: string;
 }
+
+// Follow Toggle API
+export interface FollowToggleResponse {
+  id: number;
+  name: string;
+  isFollowed: boolean;
+}
+
+export const toggleFollow = async (providerId: number, locale: string = 'en'): Promise<ApiResponse<FollowToggleResponse>> => {
+  try {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const response = await fetch(`${BASE_URL}/followers/toggle/${providerId}`, {
+      method: 'Post',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Accept-Language': locale
+      }
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error toggling follow status:', error);
+    throw error;
+  }
+};
 
 interface LoginResponse {
   userId: number;
@@ -65,13 +96,13 @@ export async function loginWithPhone(phoneNumber: string, locale: string): Promi
         'Accept-Language': locale,
       },
     });
-    
+
     const data = response.data;
-    
+
     if (!data.success) {
       throw new Error(data.message);
     }
-    
+
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -94,19 +125,19 @@ export async function verifyOtp(userId: number, otp: string, locale: string): Pr
         'Accept-Language': locale,
       },
     });
-    
+
     const data = response.data;
-    
+
     if (!data.success) {
       throw new Error(data.message);
     }
-    
+
     // If verification is successful, store the token in localStorage
     if (data.success && data.data?.token) {
       setAuthToken(data.data.token);
       setUserData(data.data.user);
     }
-    
+
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -129,13 +160,13 @@ export async function registerUser(name: string, phoneNumber: string, locale: st
         'Accept-Language': locale,
       },
     });
-    
+
     const data = response.data;
-    
+
     if (!data.success) {
       throw new Error(data.message);
     }
-    
+
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -153,25 +184,25 @@ export async function getUserProfile(locale: string): Promise<ApiResponse<UserDa
     if (!isBrowser) {
       throw new Error('This function can only be called in browser environment');
     }
-    
+
     const token = getAuthToken();
-    
+
     if (!token) {
       throw new Error('Authentication required');
     }
-    
+
     const response = await api.get<ApiResponse<UserData>>('/User/profile', {
       headers: {
         'Accept-Language': locale,
       },
     });
-    
+
     const data = response.data;
-    
+
     if (!data.success) {
       throw new Error(data.message);
     }
-    
+
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

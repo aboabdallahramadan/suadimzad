@@ -1,21 +1,30 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { User, ArrowLeft, Search } from 'lucide-react';
-import { Chat } from '@/types/chat';
-import { getCookie } from 'cookies-next';
+import { useAuth } from '@/lib/auth-context';
+interface ChatUser {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  profilePhotoUrl: string | null;
+}
+
+interface ChatResponse {
+  success: boolean;
+  data: {
+    id: number;
+    user: ChatUser;
+  }[];
+  message: string;
+}
 
 interface ChatPreview {
   id: number;
-  otherUser: {
-    id: number;
-    name: string;
-    phoneNumber: string;
-    profilePhotoUrl: string | null;
-  };
-  lastMessage: string | null;
-  lastMessageTime: string | null;
+  otherUser: ChatUser;
+  lastMessage?: string;
+  lastMessageTime?: string;
   unreadCount: number;
 }
 
@@ -25,49 +34,49 @@ export default function ChatsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const currentUserId = parseInt(getCookie('user_id') as string || '0', 10);
+  const { getToken } = useAuth();
+  const locale = useLocale();
 
   // Fetch chats
   useEffect(() => {
     const fetchChats = async () => {
       try {
         setLoading(true);
-        
-        const token = getCookie('auth_token');
-        const acceptLanguage = getCookie('NEXT_LOCALE') || 'en';
-        
-        const response = await fetch('/api/Chat', {
+
+        const token = getToken();
+        const acceptLanguage = locale || 'en';
+
+        if (typeof token !== 'string') {
+          throw new Error('Invalid authentication token');
+        }
+
+        const response = await fetch('http://localhost:5000/api/chat/my-chats', {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Accept-Language': acceptLanguage,
+            'Accept-Language': acceptLanguage as string,
           },
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch chats');
         }
-        
-        const data = await response.json();
-        
+
+        const data: ChatResponse = await response.json();
+        console.log(data);
+
         if (data.success) {
           // Transform API response to our ChatPreview format
-          const chatPreviews = data.data.map((chat: any) => {
-            const otherUser = chat.user1.id === currentUserId ? chat.user2 : chat.user1;
-            
+          const chatPreviews = data.data.map((chat) => {
             return {
               id: chat.id,
-              otherUser: {
-                id: otherUser.id,
-                name: otherUser.name,
-                phoneNumber: otherUser.phoneNumber,
-                profilePhotoUrl: otherUser.profilePhotoUrl,
-              },
-              lastMessage: chat.lastMessage?.message || null,
-              lastMessageTime: chat.lastMessage?.date || null,
-              unreadCount: chat.unreadCount || 0,
+              otherUser: chat.user,
+              // These fields are not available in the new API
+              lastMessage: undefined,
+              lastMessageTime: undefined,
+              unreadCount: 0
             };
           });
-          
+
           setChats(chatPreviews);
         } else {
           setError(data.message);
@@ -79,14 +88,14 @@ export default function ChatsPage() {
         setLoading(false);
       }
     };
-    
+
     fetchChats();
-  }, [t, currentUserId]);
+  }, [t]);
 
   // Format time
-  const formatTime = (dateStr: string | null) => {
+  const formatTime = (dateStr: string | undefined) => {
     if (!dateStr) return '';
-    
+
     const date = new Date(dateStr);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -108,11 +117,11 @@ export default function ChatsPage() {
   };
 
   // Filter chats based on search query
-  const filteredChats = searchQuery 
-    ? chats.filter(chat => 
-        chat.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (chat.lastMessage && chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
+  const filteredChats = searchQuery
+    ? chats.filter(chat =>
+      chat.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (chat.lastMessage && chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
     : chats;
 
   return (
@@ -159,7 +168,7 @@ export default function ChatsPage() {
           ) : error ? (
             <div className="p-4 text-center">
               <p className="text-red-600 mb-2">{error}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="text-primary-accent hover:underline"
               >
@@ -176,7 +185,7 @@ export default function ChatsPage() {
             <ul className="divide-y divide-gray-200">
               {filteredChats.map((chat) => (
                 <li key={chat.id}>
-                  <Link href={`/chat/${chat.id}`} className="block hover:bg-gray-50 transition-colors">
+                  <Link href={`/chat/${chat.otherUser.id}`} className="block hover:bg-gray-50 transition-colors">
                     <div className="p-4">
                       <div className="flex items-center">
                         {/* Avatar */}
@@ -184,8 +193,8 @@ export default function ChatsPage() {
                           <div className="relative">
                             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                               {chat.otherUser.profilePhotoUrl ? (
-                                <img 
-                                  src={chat.otherUser.profilePhotoUrl} 
+                                <img
+                                  src={`http://localhost:5000/uploads/${chat.otherUser.profilePhotoUrl}`}
                                   alt={chat.otherUser.name}
                                   className="w-full h-full object-cover"
                                 />
@@ -200,7 +209,7 @@ export default function ChatsPage() {
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between">
