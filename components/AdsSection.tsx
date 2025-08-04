@@ -36,7 +36,11 @@ interface ApiResponse {
   };
 }
 
-const AdsSection: React.FC = () => {
+interface AdsSectionProps {
+  search?: string;
+}
+
+const AdsSection: React.FC<AdsSectionProps> = ({ search }) => {
   const t = useTranslations();
   const [ads, setAds] = useState<AdSmall[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +66,9 @@ const AdsSection: React.FC = () => {
 
       if (cursor) {
         params.cursor = cursor;
+      }
+      if (search) {
+        params.searchTerm = search;
       }
 
       const response = await axios.get<ApiResponse>(`${API_BASE_URL}/api/offers`, {
@@ -94,12 +101,16 @@ const AdsSection: React.FC = () => {
         setAds(result.items);
         setHasMore(result.hasMore);
         setNextCursor(result.nextCursor);
+      } else {
+        setAds([]);
+        setHasMore(false);
+        setNextCursor(null);
       }
       setMounted(true);
     };
 
     initializeAds();
-  }, []);
+  }, [search]);
 
   const loadMoreAds = async () => {
     if (!nextCursor || loading) return;

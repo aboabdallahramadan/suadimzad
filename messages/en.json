@@ -212,6 +212,7 @@
       "seeMore": "See More Ads",
       "loading": "Loading...",
       "noMoreAds": "No more ads to show",
+      "noAdsAvailable": "No ads available at the moment.",
       "today": "Today",
       "yesterday": "Yesterday",
       "daysAgo": "{days} days ago",
