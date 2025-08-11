@@ -1,6 +1,7 @@
 // API utility functions for authentication and other operations
 import axios from 'axios';
 import { setAuthToken, getAuthToken, setUserData, clearAuth } from './auth-storage';
+import { User } from './auth-context';
 
 const BASE_URL = 'http://localhost:5000/api';
 
@@ -135,7 +136,7 @@ export async function verifyOtp(userId: number, otp: string, locale: string): Pr
     // If verification is successful, store the token in localStorage
     if (data.success && data.data?.token) {
       setAuthToken(data.data.token);
-      setUserData(data.data.user);
+      setUserData(data.data.user as User);
     }
 
     return data;

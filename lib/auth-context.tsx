@@ -8,7 +8,7 @@ import { useLocale } from 'next-intl';
 const isBrowser = typeof window !== 'undefined';
 
 // Define the user type
-interface User {
+export interface User {
   id: number;
   name: string;
   phoneNumber: string;
@@ -66,8 +66,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const response = await getUserProfile(local);
           if (response.success && response.data) {
-            setUser(response.data);
-            setUserData(response.data);
+            setUser(response.data as User);
+            setUserData(response.data as User);
           }
         } catch (apiError) {
           console.error('Failed to fetch fresh user data:', apiError);

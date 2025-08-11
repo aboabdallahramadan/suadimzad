@@ -66,6 +66,7 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const token = getToken();
+        console.log(token);
 
         if (!token) {
           setError('Not authenticated');

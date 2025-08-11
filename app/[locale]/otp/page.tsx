@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { verifyOtp, loginWithPhone } from '@/lib/api';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth, User } from '@/lib/auth-context';
 
 export default function OTPPage() {
   const t = useTranslations();
@@ -89,7 +89,7 @@ export default function OTPPage() {
 
         if (response.success && response.data) {
           // Update user in auth context
-          setUser(response.data.user);
+          setUser(response.data.user as User);
 
           // Redirect to home page
           router.push('/');
