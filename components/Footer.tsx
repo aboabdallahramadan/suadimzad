@@ -9,7 +9,7 @@ export function Footer() {
   return (
     <footer className="bg-primary-dark text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2 lg:col-span-1">
             <Image
@@ -24,34 +24,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">
-              {t('footer.quickLinks')}
-            </h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href={`/real-estate`} className="text-gray-300 hover:text-white transition-colors">
-                  {t('categories.realEstate')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/vehicles`} className="text-gray-300 hover:text-white transition-colors">
-                  {t('categories.vehicles')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/jobs`} className="text-gray-300 hover:text-white transition-colors">
-                  {t('categories.jobs')}
-                </Link>
-              </li>
-              <li>
-                <Link href={`/electronics`} className="text-gray-300 hover:text-white transition-colors">
-                  {t('categories.electronics')}
-                </Link>
-              </li>
-            </ul>
-          </div>
 
           {/* Support */}
           <div>

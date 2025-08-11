@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
-import { Bell, User, Menu, X, Heart, LogIn, LayoutGrid, MessageCircle, LogOut } from 'lucide-react';
-import { MobileMenu } from '../MobileMenu';
+import { Bell, User, X, Heart, LogIn, LayoutGrid, MessageCircle, LogOut } from 'lucide-react';
 import { LanguageToggle } from '../LanguageToggle';
 import SearchBar from './SearchBar';
 import { useAuth } from '@/lib/auth-context';
@@ -19,7 +18,6 @@ import { Notification } from '@/types/notification';
 import { useLocale, useTranslations } from 'next-intl';
 
 export function Header() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -318,14 +316,6 @@ export function Header() {
                 {t('nav.postAd')}
               </Link>
 
-              {/* Mobile menu button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden text-gray-600 hover:text-primary-accent transition-colors"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-
               <LanguageToggle />
             </div>
           </div>
@@ -339,13 +329,6 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <MobileMenu
-          isOpen={isMobileMenuOpen}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
-      )}
     </>
   );
 }

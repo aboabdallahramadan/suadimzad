@@ -1,7 +1,7 @@
 "use client";
 import { useLocale, useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { User, Phone, Calendar, Users, Heart, Share2, UserCheck } from 'lucide-react';
+import { User, Phone, Calendar, Users, Heart, UserCheck } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 import axios from 'axios';
@@ -66,7 +66,6 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         const token = getToken();
-        console.log(token);
 
         if (!token) {
           setError('Not authenticated');
@@ -213,12 +212,6 @@ export default function ProfilePage() {
                     <p className="text-gray-600 mt-1">{t('user.joinedDate')} {joinedDate}</p>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                      <Share2 className="w-4 h-4" />
-                      {t('profile.shareProfile')}
-                    </button>
-                  </div>
                 </div>
 
                 {/* Stats */}

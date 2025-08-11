@@ -34,7 +34,6 @@ export const getMyNotifications = async (locale: string, token: string, page = 1
 };
 
 export const markNotificationAsRead = async (locale: string, token: string, notificationId: number): Promise<void> => {
-  console.log(token)
   const response =  await fetch(`${API_BASE_URL}/Notification/${notificationId}/mark-as-read`, {
     method: 'POST',
     headers: {

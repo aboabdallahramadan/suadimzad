@@ -205,7 +205,7 @@ const AdsSection: React.FC<AdsSectionProps> = ({ search }) => {
                     <span>{mounted ? getTimeAgo(ad.createdAt) : ''}</span>
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-0">
                     <div className="text-2xl font-bold text-primary-accent">
                       {formatPrice(ad.price)} QR
                     </div>

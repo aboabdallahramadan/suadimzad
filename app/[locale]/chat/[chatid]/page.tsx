@@ -62,7 +62,11 @@ export default function ChatPage() {
         const response = await getChatMessages(chat.id, getToken(), locale);
 
         if (response.success) {
-          setMessages(response.data.messages);
+          // Sort messages by timestamp from oldest to newest
+          const sortedMessages = [...response.data.messages].sort((a, b) => 
+            new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
+          setMessages(sortedMessages);
           setHasMore(response.data.hasMore);
           setLastMessageId(response.data.lastMessageId);
         } else {

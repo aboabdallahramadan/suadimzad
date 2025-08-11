@@ -17,7 +17,7 @@ export default function OTPPage() {
   const [type, setType] = useState('');
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);  
   const [error, setError] = useState('');
   const local = useLocale();
 
@@ -179,7 +179,7 @@ export default function OTPPage() {
               <label className="block text-sm font-semibold text-gray-700 text-center mb-6">
                 {t('auth.enterOtpCode')}
               </label>
-              <div className="flex justify-center space-x-3" onPaste={handlePaste}>
+              <div className="flex justify-center space-x-1" onPaste={handlePaste} dir="ltr">
                 {otp.map((digit, index) => (
                   <input
                     key={index}

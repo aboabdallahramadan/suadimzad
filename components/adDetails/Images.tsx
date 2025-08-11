@@ -69,7 +69,7 @@ const Images = ({ images }: ImagesProps) => {
               src={`http://localhost:5000/uploads/${img}`}
               alt={`ad image ${index}`}
               onClick={() => selectImage(index)}
-              className={`w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition-all ${index === currentImageIndex
+              className={`w-20 h-20 object-contain rounded-lg border-2 cursor-pointer transition-all ${index === currentImageIndex
                   ? 'border-primary-accent opacity-100'
                   : 'border-transparent opacity-70 hover:opacity-100 hover:border-primary-accent'
                 }`}

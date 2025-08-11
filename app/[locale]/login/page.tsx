@@ -81,7 +81,7 @@ export default function LoginPage() {
                   autoComplete="tel"
                   required
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9+]/g, '').replace(/^\+{2,}/, '+'))}
                   className="block w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-primary-accent transition-all duration-200 text-lg"
                   placeholder="12345678"
                 />

@@ -413,7 +413,11 @@
       "active": "نشط",
       "lastSeen": "آخر ظهور",
       "startConversation": "ابدأ محادثة",
-      "sendYourFirstMessage": "أرسل رسالتك الأولى لبدء المحادثة"
+      "sendYourFirstMessage": "أرسل رسالتك الأولى لبدء المحادثة",
+      "noMessages": "لا توجد رسائل بعد",
+      "messages": "الرسائل",
+      "searchPlaceholder": "البحث في المحادثات...",
+      "clickToChat": "اضغط للمحادثة"
     },
     "search": {
       "searchFavorites": "البحث في المفضلة"

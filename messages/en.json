@@ -413,7 +413,11 @@
       "active": "Active",
       "lastSeen": "Last seen",
       "startConversation": "Start a conversation",
-      "sendYourFirstMessage": "Send your first message to start chatting"
+      "sendYourFirstMessage": "Send your first message to start chatting",
+      "noMessages": "No messages yet",
+      "messages": "Messages",
+      "searchPlaceholder": "Search chats...",
+      "clickToChat": "Click to chat"
     },
     "search": {
       "searchFavorites": "Search Favorites"
