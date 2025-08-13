@@ -121,9 +121,9 @@ export default function ChatPage() {
   // Scroll to bottom on new message
   useEffect(() => {
     if (messages.length > 0 && !loading) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
-  }, [messages, loading]);
+  }, [loading]);
 
   // Format time display
   const formatTime = (dateStr: string) => {
@@ -293,7 +293,7 @@ export default function ChatPage() {
                             : 'bg-white border border-gray-200'
                             }`}
                         >
-                          <p className="text-sm">{message.message}</p>
+                          <p className="text-sm wrap-anywhere">{message.message}</p>
                           <div className={`flex items-center gap-1 mt-1 ${message.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}>
                             <span className={`text-xs ${message.senderId === currentUserId ? 'text-white/70' : 'text-gray-500'}`}>
                               {formatTime(message.date)}
