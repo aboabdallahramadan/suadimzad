@@ -7,7 +7,7 @@ import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from '@/components/WatermarkedImgTag';
 
 // API base URL
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://alaamohamad-001-site1.qtempurl.com';
 
 // Interface for API offer response
 interface ApiOfferItem {
@@ -213,7 +213,7 @@ export default function CategoryPage({
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/regions/dropdown', {
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/admin/regions/dropdown', {
           headers: {
             'Accept-Language': locale
           }

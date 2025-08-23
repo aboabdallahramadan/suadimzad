@@ -56,7 +56,7 @@ const getHeaders = (token: string, locale: string) => {
 
 export const getOrCreateChatWithUser = async (userId: number, token: string, locale: string): Promise<ChatResponse> => {
   try {
-    const response = await fetch(`http://localhost:5000/api/Chat/with-user/${userId}`, {
+    const response = await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/Chat/with-user/${userId}`, {
       method: 'GET',
       headers: getHeaders(token, locale),
     });
@@ -84,7 +84,7 @@ export const getChatMessages = async (
     const queryParams = new URLSearchParams();
     if (lastMessageId) queryParams.append('lastMessageId', lastMessageId.toString());
     if (pageSize) queryParams.append('pageSize', pageSize.toString());
-    const url = `http://localhost:5000/api/Chat/${chatId}/messages?${queryParams.toString()}`;
+    const url = `http://alaamohamad-001-site1.qtempurl.com/api/Chat/${chatId}/messages?${queryParams.toString()}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -106,7 +106,7 @@ export const getChatMessages = async (
 
 export const sendMessage = async (chatId: number, message: string, token: string, locale: string): Promise<SendMessageResponse> => {
   try {
-    const response = await fetch(`http://localhost:5000/api/Chat/${chatId}/send`, {
+    const response = await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/Chat/${chatId}/send`, {
       method: 'POST',
       headers: getHeaders(token, locale),
       body: JSON.stringify({ message }),

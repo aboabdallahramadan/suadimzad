@@ -52,7 +52,7 @@ const AdsSection: React.FC<AdsSectionProps> = ({ search }) => {
   const locale = useLocale();
 
 
-  const API_BASE_URL = 'http://localhost:5000';
+  const API_BASE_URL = 'http://alaamohamad-001-site1.qtempurl.com';
 
   const fetchAds = async (cursor: number | null = null) => {
     setLoading(true);
@@ -181,7 +181,7 @@ const AdsSection: React.FC<AdsSectionProps> = ({ search }) => {
                 {/* Ad Image */}
                 <div className="relative overflow-hidden">
                   <WatermarkedImgTag
-                    src={`http://localhost:5000/uploads/${ad.mainImageUrl}`} // Fallback image if mainImageUrl is missing
+                    src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${ad.mainImageUrl}`} // Fallback image if mainImageUrl is missing
                     alt={ad.name}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     watermarkPosition="bottom-right"

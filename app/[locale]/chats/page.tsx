@@ -50,7 +50,7 @@ export default function ChatsPage() {
           throw new Error('Invalid authentication token');
         }
 
-        const response = await fetch('http://localhost:5000/api/chat/my-chats', {
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/chat/my-chats', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept-Language': acceptLanguage as string,
@@ -194,7 +194,7 @@ export default function ChatsPage() {
                             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                               {chat.otherUser.profilePhotoUrl ? (
                                 <img
-                                  src={`http://localhost:5000/uploads/${chat.otherUser.profilePhotoUrl}`}
+                                  src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${chat.otherUser.profilePhotoUrl}`}
                                   alt={chat.otherUser.name}
                                   className="w-full h-full object-cover"
                                 />

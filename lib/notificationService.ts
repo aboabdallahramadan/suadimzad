@@ -1,7 +1,7 @@
 // import apiClient from './apiClient';
 import { Notification } from '@/types/notification';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://alaamohamad-001-site1.qtempurl.com/api';
 
 export interface PaginatedNotifications {
   notifications: Notification[];

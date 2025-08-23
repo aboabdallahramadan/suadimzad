@@ -73,7 +73,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const response = await axios.get<ApiResponse>('http://localhost:5000/api/User/profile', {
+        const response = await axios.get<ApiResponse>('http://alaamohamad-001-site1.qtempurl.com/api/User/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
             'Accept-Language': locale,
@@ -107,7 +107,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const response = await axios.get<FollowersApiResponse>('http://localhost:5000/api/followers/following', {
+      const response = await axios.get<FollowersApiResponse>('http://alaamohamad-001-site1.qtempurl.com/api/followers/following', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Accept-Language': locale,
@@ -196,7 +196,7 @@ export default function ProfilePage() {
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                 {profile.profilePhotoUrl ? (
                   <img
-                    src={`http://localhost:5000/uploads/${profile.profilePhotoUrl}`}
+                    src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${profile.profilePhotoUrl}`}
                     alt={profile.name}
                     className="w-full h-full object-cover rounded-full"
                   />
@@ -331,7 +331,7 @@ export default function ProfilePage() {
                           <div className="w-12 h-12 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center overflow-hidden">
                             {user.profilePhotoUrl ? (
                               <img
-                                src={`http://localhost:5000/uploads/${user.profilePhotoUrl}`}
+                                src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${user.profilePhotoUrl}`}
                                 alt={user.name}
                                 className="w-full h-full object-cover"
                               />
@@ -398,7 +398,7 @@ export default function ProfilePage() {
                       <Link href={`/ad/${offer.id}`} key={offer.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-[4/3] relative">
                           <WatermarkedImgTag
-                            src={`http://localhost:5000/uploads/${offer.mainImageUrl}`}
+                            src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${offer.mainImageUrl}`}
                             alt={offer.name}
                             className="w-full h-full object-cover"
                             watermarkPosition="bottom-right"

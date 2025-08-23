@@ -65,7 +65,7 @@ const PostAdPage = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/regions/dropdown', {
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/admin/regions/dropdown', {
           headers: {
             'Accept-Language': locale
           }
@@ -95,7 +95,7 @@ const PostAdPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/customer/categories/dropdown', {
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/customer/categories/dropdown', {
           headers: {
             'Accept-Language': locale
           }
@@ -254,7 +254,7 @@ const PostAdPage = () => {
       const token = getToken()
 
       // Make API call
-      const response = await fetch('http://localhost:5000/api/offers/create', {
+      const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/offers/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

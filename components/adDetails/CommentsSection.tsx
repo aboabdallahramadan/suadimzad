@@ -52,7 +52,7 @@ const CommentsSection = () => {
   const fetchComments = async (cursor: number | null = null) => {
     try {
       setIsLoading(true);
-      const url = `http://localhost:5000/api/offers/${offerId}/comments${cursor ? `?cursor=${cursor}` : ''}`;
+      const url = `http://alaamohamad-001-site1.qtempurl.com/api/offers/${offerId}/comments${cursor ? `?cursor=${cursor}` : ''}`;
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${getToken()}`,
@@ -85,7 +85,7 @@ const CommentsSection = () => {
 
   const fetchReplies = async (commentId: number, cursor: number | null = null) => {
     try {
-      const url = `http://localhost:5000/api/offers/comments/${commentId}/replies${cursor ? `?cursor=${cursor}` : ''}`;
+      const url = `http://alaamohamad-001-site1.qtempurl.com/api/offers/comments/${commentId}/replies${cursor ? `?cursor=${cursor}` : ''}`;
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${getToken()}`,
@@ -131,7 +131,7 @@ const CommentsSection = () => {
 
     try {
       console.log(getToken());
-      const response = await fetch(`http://localhost:5000/api/offers/${offerId}/comments`, {
+      const response = await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/offers/${offerId}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ const CommentsSection = () => {
     if (!replyContent?.trim()) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/offers/${offerId}/comments`, {
+      const response = await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/offers/${offerId}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -288,7 +288,7 @@ const CommentsSection = () => {
             <div key={comment.id} className="border-b border-secondary-gray pb-6 mb-6 last:border-0 last:pb-0">
               <div className="flex space-x-4">
                 <img
-                  src={`http://localhost:5000/uploads/${comment.userProfilePhotoUrl}`}
+                  src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${comment.userProfilePhotoUrl}`}
                   alt={comment.userName}
                   className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                 />
@@ -342,7 +342,7 @@ const CommentsSection = () => {
                           {replies[comment.id].map((reply) => (
                             <div key={reply.id} className="flex space-x-3">
                               <img
-                                src={`http://localhost:5000/uploads/${reply.userProfilePhotoUrl}`}
+                                src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${reply.userProfilePhotoUrl}`}
                                 alt={reply.userName}
                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                               />

@@ -30,7 +30,7 @@ const Images = ({ images }: ImagesProps) => {
       {/* Image Carousel */}
       <div className="relative">
         <WatermarkedImgTag
-          src={`http://localhost:5000/uploads/${images[currentImageIndex]}`}
+          src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${images[currentImageIndex]}`}
           alt="ad image"
           className="w-full h-96 object-cover"
           watermarkPosition="bottom-right"
@@ -66,7 +66,7 @@ const Images = ({ images }: ImagesProps) => {
           {images.map((img, index) => (
             <WatermarkedImgTag
               key={index}
-              src={`http://localhost:5000/uploads/${img}`}
+              src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${img}`}
               alt={`ad image ${index}`}
               onClick={() => selectImage(index)}
               className={`w-20 h-20 object-contain rounded-lg border-2 cursor-pointer transition-all ${index === currentImageIndex

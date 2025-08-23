@@ -28,7 +28,7 @@ export function CategoriesGrid() {
     const fetchCategories = async () => {
       try {
         console.log(locale);
-        const response = await fetch('http://localhost:5000/api/shared/categories/all-categories', {
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/shared/categories/all-categories', {
           headers: {
             'Accept': 'text/plain',
             'Accept-Language': locale
@@ -48,7 +48,7 @@ export function CategoriesGrid() {
             subcategories: category.subCategories.map((sub: ApiSubCategory) => ({
               id: sub.id.toString(),
               title: sub.name,
-              image: `http://localhost:5000/uploads/${sub.imageUrl}`
+              image: `http://alaamohamad-001-site1.qtempurl.com/uploads/${sub.imageUrl}`
             }))
           }));
           setCategories(mappedCategories);

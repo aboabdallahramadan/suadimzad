@@ -43,7 +43,7 @@ interface ApiResponse {
 
 // Fetch user profile from API
 const fetchUserProfile = async (userId: string): Promise<PublicUserProfileDto> => {
-  const response = await fetch(`http://localhost:5000/api/User/profile/${userId}`, {
+  const response = await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/User/profile/${userId}`, {
     headers: {
       'Accept-Language': 'en', // You can make this dynamic based on locale
     },
@@ -170,7 +170,7 @@ export default function UserProfilePage() {
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {user.profilePhotoUrl ? (
                   <img
-                    src={`http://localhost:5000/uploads/${user.profilePhotoUrl}`}
+                    src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${user.profilePhotoUrl}`}
                     alt={user.name}
                     className="w-full h-full object-cover"
                   />
@@ -303,7 +303,7 @@ export default function UserProfilePage() {
                     <div className="aspect-video bg-gray-200 relative">
                       <div className="aspect-[4/3] relative">
                         <WatermarkedImgTag
-                          src={`http://localhost:5000/uploads/${ad.image}`}
+                          src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${ad.image}`}
                           alt={ad.title}
                           className="w-full h-full object-cover"
                           watermarkPosition="bottom-right"

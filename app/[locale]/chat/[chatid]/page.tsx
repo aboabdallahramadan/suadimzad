@@ -218,7 +218,7 @@ export default function ChatPage() {
                   <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
                     {otherUser?.profilePhotoUrl ? (
                       <img
-                        src={`http://localhost:5000/uploads/${otherUser.profilePhotoUrl}`}
+                        src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${otherUser.profilePhotoUrl}`}
                         alt={otherUser.name}
                         className="w-full h-full object-cover"
                       />

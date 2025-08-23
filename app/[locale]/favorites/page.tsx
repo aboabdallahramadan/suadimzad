@@ -61,7 +61,7 @@ export default function FavoritesPage() {
       if (cursor) params.append('cursor', cursor.toString());
       if (searchTerm) params.append('searchTerm', searchTerm);
 
-      const response = await axios.get<FavoritesResponse>(`http://localhost:5000/api/offers/my-favorites${params.toString() != '' ? '?' + params.toString() : ''}`, {
+      const response = await axios.get<FavoritesResponse>(`http://alaamohamad-001-site1.qtempurl.com/api/offers/my-favorites${params.toString() != '' ? '?' + params.toString() : ''}`, {
         headers: {
           'Authorization': `Bearer ${getToken()}`,
           'Accept-Language': locale
@@ -105,7 +105,7 @@ export default function FavoritesPage() {
   const removeFromFavorite = async (offerId: number) => {
     try {
       // Call API to remove from favorites
-      await fetch(`http://localhost:5000/api/offers/${offerId}/favorite`, {
+      await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/offers/${offerId}/favorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ export default function FavoritesPage() {
                       <div className="w-full sm:w-48 h-48 sm:h-32 bg-gray-200 rounded-lg flex-shrink-0 relative overflow-hidden">
                         <div className="aspect-[4/3] relative">
                           <img
-                            src={'http://localhost:5000/uploads/' + offer.mainImageUrl}
+                            src={'http://alaamohamad-001-site1.qtempurl.com/uploads/' + offer.mainImageUrl}
                             alt={offer.name}
                             className="w-full h-full object-cover"
                           />

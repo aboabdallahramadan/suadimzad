@@ -14,7 +14,7 @@ export function BannerCarousel() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/customer/sliders', {
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/customer/sliders', {
           headers: {
             'Accept-Language': 'en'
           }
@@ -65,7 +65,7 @@ export function BannerCarousel() {
             }`}
           >
             <img
-              src={`http://localhost:5000/uploads/${banner.imageUrl}`}
+              src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${banner.imageUrl}`}
               alt={banner.name}
               className="w-full h-full object-cover"
             />

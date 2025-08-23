@@ -43,7 +43,7 @@ interface OfferResponse {
 async function getOfferById(id: string, locale: string = 'en', token: string = ''): Promise<OfferResponse> {
   try {
     // Use absolute URL to avoid issues with relative paths
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = 'http://alaamohamad-001-site1.qtempurl.com';
     const response = await fetch(`${baseUrl}/api/offers/${id}`, {
       cache: 'no-store', // Don't cache this request
       headers: {

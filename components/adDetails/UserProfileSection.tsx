@@ -61,7 +61,7 @@ const UserProfileSection = ({ adUser }: UserProfileSectionProps) => {
             <div className="flex items-center justify-between flex-col lg:flex-row gap-4">
                 <div className="flex items-center space-x-4 flex-col lg:flex-row ">
                     <WatermarkedImgTag
-                        src={`http://localhost:5000/uploads/${adUser.avatar}`}
+                        src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${adUser.avatar}`}
                         alt={adUser.name}
                         className="w-16 h-16 rounded-full object-cover"
                         watermarkPosition="bottom-right"

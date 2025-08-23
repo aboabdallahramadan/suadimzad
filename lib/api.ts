@@ -3,7 +3,7 @@ import axios from 'axios';
 import { setAuthToken, getAuthToken, setUserData, clearAuth } from './auth-storage';
 import { User } from './auth-context';
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://alaamohamad-001-site1.qtempurl.com/api';
 
 // Check if code is running in browser environment
 const isBrowser = typeof window !== 'undefined';

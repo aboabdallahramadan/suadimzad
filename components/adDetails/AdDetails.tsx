@@ -17,7 +17,7 @@ const AdDetails = ({ adDetails: initialAdDetails }: AdDetailsProps) => {
 
   const toggleFavorite = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/offers/${adDetails.id}/favorite`, {
+      const response = await fetch(`http://alaamohamad-001-site1.qtempurl.com/api/offers/${adDetails.id}/favorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
