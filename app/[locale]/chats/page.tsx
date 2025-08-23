@@ -1,222 +1,233 @@
 "use client";
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { MessageCircle, Search, Clock, User } from 'lucide-react';
-import { ChatPreview } from '@/types/chat';
+import { User, ArrowLeft, Search } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+interface ChatUser {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  profilePhotoUrl: string | null;
+}
 
-// Mock data for chats
-const mockChats: ChatPreview[] = [
-  {
-    id: '1',
-    otherUser: {
-      id: '2',
-      name: 'Ahmed Mohammed',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-    },
-    lastMessage: 'Is this item still available? I am interested in buying it.',
-    lastMessageTime: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-    unreadCount: 2,
-  },
-  {
-    id: '2',
-    otherUser: {
-      id: '3',
-      name: 'Sara Al-Rashid',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-    },
-    lastMessage: 'Thank you for the information. I will contact you tomorrow.',
-    lastMessageTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    unreadCount: 0,
-  },
-  {
-    id: '3',
-    otherUser: {
-      id: '4',
-      name: 'Khaled Ibrahim',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-    },
-    lastMessage: 'Can we meet at 3 PM today?',
-    lastMessageTime: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    unreadCount: 1,
-  },
-  {
-    id: '4',
-    otherUser: {
-      id: '5',
-      name: 'Fatima Al-Zahra',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',  
-    },
-    lastMessage: 'I have sent you the details via email.',
-    lastMessageTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    unreadCount: 0,
+interface ChatResponse {
+  success: boolean;
+  data: {
+    id: number;
+    user: ChatUser;
+  }[];
+  message: string;
+}
 
-  },
-  {
-    id: '5',
-    otherUser: {
-      id: '6',
-      name: 'Omar Hassan',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-
-    },
-    lastMessage: 'The furniture is in excellent condition.',
-    lastMessageTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-    unreadCount: 0,
-
-  }
-];
+interface ChatPreview {
+  id: number;
+  otherUser: ChatUser;
+  lastMessage?: string;
+  lastMessageTime?: string;
+  unreadCount: number;
+}
 
 export default function ChatsPage() {
   const t = useTranslations();
-  const [chats] = useState<ChatPreview[]>(mockChats);
+  const [chats, setChats] = useState<ChatPreview[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading] = useState(false);
+  const { getToken } = useAuth();
+  const locale = useLocale();
 
-  // Filter chats based on search query
-  const filteredChats = chats.filter(chat => 
-    chat.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Fetch chats
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        setLoading(true);
 
-  // Format time display
-  const formatTime = (date: Date) => {
+        const token = getToken();
+        const acceptLanguage = locale || 'en';
+
+        if (typeof token !== 'string') {
+          throw new Error('Invalid authentication token');
+        }
+
+        const response = await fetch('http://alaamohamad-001-site1.qtempurl.com/api/chat/my-chats', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept-Language': acceptLanguage as string,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch chats');
+        }
+
+        const data: ChatResponse = await response.json();
+        console.log(data);
+
+        if (data.success) {
+          // Transform API response to our ChatPreview format
+          const chatPreviews = data.data.map((chat) => {
+            return {
+              id: chat.id,
+              otherUser: chat.user,
+              // These fields are not available in the new API
+              lastMessage: undefined,
+              lastMessageTime: undefined,
+              unreadCount: 0
+            };
+          });
+
+          setChats(chatPreviews);
+        } else {
+          setError(data.message);
+        }
+      } catch (error) {
+        setError(t('chat.errorLoadingChats'));
+        console.error('Error loading chats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChats();
+  }, [t]);
+
+  // Format time
+  const formatTime = (dateStr: string | undefined) => {
+    if (!dateStr) return '';
+
+    const date = new Date(dateStr);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (minutes < 1) return t('chat.now');
-    if (minutes < 60) return t('chat.minutesAgo', { minutes });
-    if (hours < 24) return t('chat.hoursAgo', { hours });
-    if (days === 1) return t('chat.yesterday');
-    return t('chat.daysAgo', { days });
+    if (minutes < 60) {
+      return `${minutes}m`;
+    } else if (hours < 24) {
+      return `${hours}h`;
+    } else if (days === 1) {
+      return t('chat.yesterday');
+    } else if (days < 7) {
+      return `${days}d`;
+    } else {
+      return date.toLocaleDateString();
+    }
   };
 
-  // Get total unread count
-  const totalUnreadCount = chats.reduce((sum, chat) => sum + chat.unreadCount, 0);
+  // Filter chats based on search query
+  const filteredChats = searchQuery
+    ? chats.filter(chat =>
+      chat.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (chat.lastMessage && chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+    : chats;
 
   return (
-    <div className="min-h-screen bg-primary-bg py-4 sm:py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
-                  <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-primary-accent" />
-                  {t('chat.title')}
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
-                  {totalUnreadCount > 0 
-                    ? `${totalUnreadCount} ${t('chat.newMessage')}`
-                    : t('chat.noChats')
-                  }
-                </p>
-              </div>
-            </div>
-
-            {/* Search */}
-            <div className="relative">
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder={t('chat.searchChats')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-primary-accent"
-              />
+    <div className="min-h-screen bg-primary-bg flex flex-col">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 p-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </Link>
+              <h1 className="font-semibold text-lg text-gray-900">{t('chat.messages')}</h1>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Chats List */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-accent"></div>
-                <span className="ml-3 text-gray-600">{t('chat.loading')}</span>
-              </div>
-            ) : filteredChats.length === 0 ? (
-              <div className="text-center py-16 px-4">
-                <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {searchQuery ? 'No chats found' : t('chat.noChats')}
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  {searchQuery ? 'Try adjusting your search terms' : t('chat.noChatsDesc')}
-                </p>
-                {!searchQuery && (
-                  <Link
-                    href="/categories"
-                    className="inline-flex items-center px-4 py-2 bg-primary-accent text-white rounded-lg hover:bg-primary-dark transition-colors"
-                  >
-                    Browse Ads
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {filteredChats.map((chat) => (
-                  <Link
-                    key={chat.id}
-                    href={`/chat/${chat.id}`}
-                    className="block hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="p-4 sm:p-6">
-                      <div className="flex items-start gap-3 sm:gap-4">
+      {/* Search */}
+      <div className="p-4 bg-white border-b border-gray-200">
+        <div className="container mx-auto max-w-4xl">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-accent focus:border-primary-accent"
+              placeholder={t('chat.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Chat List */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="container mx-auto max-w-4xl">
+          {loading ? (
+            <div className="flex justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-accent"></div>
+            </div>
+          ) : error ? (
+            <div className="p-4 text-center">
+              <p className="text-red-600 mb-2">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-primary-accent hover:underline"
+              >
+                {t('common.retry')}
+              </button>
+            </div>
+          ) : filteredChats.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-500">
+                {searchQuery ? t('chat.noSearchResults') : t('chat.noChats')}
+              </p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {filteredChats.map((chat) => (
+                <li key={chat.id}>
+                  <Link href={`/chat/${chat.otherUser.id}`} className="block hover:bg-gray-50 transition-colors">
+                    <div className="p-4">
+                      <div className="flex items-center">
                         {/* Avatar */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                            {chat.otherUser.avatar ? (
-                              <img
-                                src={chat.otherUser.avatar}
-                                alt={chat.otherUser.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
-                            )}
-                          </div>
-
-                        </div>
-
-                        {/* Chat Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-medium text-gray-900 truncate">
-                              {chat.otherUser.name}
-                            </h3>
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              {chat.lastMessageTime && (
-                                <>
-                                  <Clock className="w-3 h-3" />
-                                  {formatTime(chat.lastMessageTime)}
-                                </>
+                        <div className="mr-4">
+                          <div className="relative">
+                            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                              {chat.otherUser.profilePhotoUrl ? (
+                                <img
+                                  src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${chat.otherUser.profilePhotoUrl}`}
+                                  alt={chat.otherUser.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <User className="w-6 h-6 text-gray-400" />
                               )}
                             </div>
                           </div>
+                        </div>
 
-                          {/* Last Message */}
-                          <div className="flex items-center gap-2 mb-2">
-                            <p className="text-sm text-gray-600 truncate flex-1">
-                                {chat.lastMessage}
-                              </p>
-                            {chat.unreadCount > 0 && (
-                              <span className="flex-shrink-0 w-5 h-5 bg-primary-accent text-white text-xs rounded-full flex items-center justify-center">
-                                {chat.unreadCount}
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between">
+                            <h2 className="text-base font-semibold text-gray-900 truncate">
+                              {chat.otherUser.name}
+                            </h2>
+                            {chat.lastMessageTime && (
+                              <span className="text-xs text-gray-500">
+                                {formatTime(chat.lastMessageTime)}
                               </span>
                             )}
                           </div>
+                          <p className="mt-1 text-sm text-gray-600 truncate">
+                            {chat.lastMessage || t('chat.clickToChat')}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </Link>
-                ))}
-              </div>
-            )}
-          </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

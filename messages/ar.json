@@ -106,7 +106,10 @@
       "searchPlaceholder": "ابحث عن أي شيء...",
       "loading": "جاري التحميل...",
       "error": "حدث خطأ",
-      "home": "الرئيسية"
+      "home": "الرئيسية",
+      "backToChats": "العودة إلى المحادثات",
+      "search": "بحث",
+      "loadMore": "تحميل المزيد"
     },
     "footer": {
       "description": "موقع إعلانات سهل البيع والشراء الأعلى في الجودة. إضافة إعلانات مجانية. شراء وبيع سيارات مستعملة، شقق للإيجار، البحث عن وظائف والمزيد من العناصر المنزلية والجودة في سهل",
@@ -158,6 +161,7 @@
       "success": "تم نشر الإعلان بنجاح!",
       "error": "خطأ في نشر الإعلان. يرجى المحاولة مرة أخرى.",
       "selectLocation": "اختر الموقع",
+      "selectCategoryFirst": "يرجى اختيار التصنيف أولاً لرؤية الحقول المناسبة",
       "selectSubcategoryFirst": "يرجى اختيار التصنيف الفرعي أولاً لرؤية الحقول المناسبة"
     },
     "adDetails": {
@@ -166,7 +170,8 @@
       "share": "مشاركة",
       "memberSince": "تاريخ الانضمام",
       "showNumber": "اظهار الرقم",
-      "follow": "تابع"
+      "follow": "تابع",
+      "loves": "إعجابات"
     },
     "locations": {
       "Riyadh": "الرياض",
@@ -207,6 +212,7 @@
       "seeMore": "عرض المزيد من الإعلانات",
       "loading": "جاري التحميل...",
       "noMoreAds": "لا توجد إعلانات أخرى للعرض",
+      "noAdsAvailable": "لا توجد إعلانات متاحة في الوقت الحالي.",
       "today": "اليوم",
       "yesterday": "أمس",
       "daysAgo": "منذ {days} أيام",
@@ -305,6 +311,7 @@
     "user": {
       "profile": "الملف الشخصي",
       "favorites": "المفضلة",
+      "favoriteAd": "الإعلان المفضل",
       "login": "تسجيل الدخول",
       "logout": "تسجيل الخروج",
       "myProfile": "ملفي الشخصي",
@@ -337,7 +344,8 @@
       "noAdsDescUser": "لم يتم نشر إعلانات بعد",
       "likes": "معجب",
       "comments": "تعليق",
-      "chats": "المحادثات"
+      "chats": "المحادثات",
+      "register": "تسجيل"
     },
     "profile": {
       "title": "الملف الشخصي",
@@ -350,13 +358,19 @@
       "memberSince": "تاريخ الانضمام",
       "showNumber": "اظهار الرقم",
       "follow": "تابع",
+      "following": "يتابع",
       "chat": "محادثة"
     },
     "comments": {
       "addComment": "اضافة تعليق",
       "addCommentPlaceholder": "ادخل التعليق هنا",
       "comments": "التعليقات",
-      "noComments": "لا يوجد تعليقات بعد"
+      "noComments": "لا يوجد تعليقات بعد",
+      "showReplies": "عرض الردود",
+      "hideReplies": "إخفاء الردود",
+      "reply": "رد",
+      "replyPlaceholder": "اكتب ردك هنا",
+      "noReplies": "لا توجد ردود بعد"
     },
     "chat": {
       "title": "الرسائل",
@@ -399,7 +413,14 @@
       "active": "نشط",
       "lastSeen": "آخر ظهور",
       "startConversation": "ابدأ محادثة",
-      "sendYourFirstMessage": "أرسل رسالتك الأولى لبدء المحادثة"
+      "sendYourFirstMessage": "أرسل رسالتك الأولى لبدء المحادثة",
+      "noMessages": "لا توجد رسائل بعد",
+      "messages": "الرسائل",
+      "searchPlaceholder": "البحث في المحادثات...",
+      "clickToChat": "اضغط للمحادثة"
+    },
+    "search": {
+      "searchFavorites": "البحث في المفضلة"
     }
   }
   

@@ -1,14 +1,21 @@
 'use client'
 import { Search } from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslations } from 'next-intl';
-import SubcategorySelector from './SubcategorySelector';
+import { useRouter } from 'next/navigation';
 
 const SearchBar = () => {
   const t = useTranslations();
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = () => {
+    router.push(`/?search=${searchTerm}`);
+  };
+
   return (
     <div className="bg-secondary-bg w-full">
-      <div className='container mx-auto px-4 py-4'>      
+      <div className='container mx-auto px-4 py-4'>
         <div className="flex items-center justify-center">
           <div className="flex max-w-2xl w-full gap-2 lg:gap-6 rounded-lg shadow-sm">
             {/* Search Input */}
@@ -17,16 +24,16 @@ const SearchBar = () => {
                 type="text"
                 placeholder={t('common.searchPlaceholder')}
                 className="w-full h-12 px-4 border-0 outline-none text-gray-700 placeholder-gray-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
-            
-            {/* Category Selector */}
-            <div className="border-l border-gray-200 bg-white rounded-lg">
-              <SubcategorySelector />
-            </div>
-            
             {/* Search Button */}
-            <button className="bg-white hover:bg-gray-100 transition-colors px-4 flex items-center justify-center rounded-lg cursor-pointer">
+            <button
+              className="bg-white hover:bg-gray-100 transition-colors px-4 flex items-center justify-center rounded-lg cursor-pointer"
+              onClick={handleSearch}
+            >
               <Search className="w-5 h-5 text-primary-color" />
             </button>
           </div>

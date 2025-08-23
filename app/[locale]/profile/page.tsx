@@ -1,74 +1,190 @@
 "use client";
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
-import { User, Phone, Calendar, Users, Heart, Share2, UserCheck } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { User, Phone, Calendar, Users, Heart, UserCheck } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
-import { AdSmall } from '@/types/adSmall';
 import WatermarkedImgTag from '@/components/WatermarkedImgTag';
+import axios from 'axios';
+import { useAuth } from '@/lib/auth-context';
+import { toggleFollow } from '@/lib/api';
 
-// Mock data
-const currentUser = {
-  id: 1,
-  name: 'Ahmed Al-Mansouri', 
-  phone: '+974 5555 1234',
-  joinedDate: 'January 2023',
-  followersCount: 45,
-  followingCount: 12,
-  adsCount: 23
-};
+// API types
+interface UserProfile {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  userType: number;
+  profilePhotoUrl: string | null;
+  offers: Offer[];
+}
 
-const followingUsers = [
-  {
-    id: 2,
-    name: 'Sara Al-Khalifa',
-    phone: '+974 5555 5678',
-    adsCount: 15,
-    lastActive: '2 hours ago',
-    isFollowing: true
-  },
-  {
-    id: 3,
-    name: 'Mohammed Al-Thani',
-    phone: '+974 5555 9012',
-    adsCount: 8,
-    lastActive: '1 day ago',
-    isFollowing: true
-  }
-];
+interface FollowedUser {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  profilePhotoUrl: string | null;
+}
 
-const userAds: AdSmall[] = [
-  {
-    id: '1',
-    title: 'Toyota Camry 2020 - Excellent Condition',
-    price: 85000,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop',
-    comments: 27,
-    likes: 5,
-  },
-  {
-    id: '2',
-    title: '3 Bedroom Apartment for Rent',
-    price: 85000,
-    image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=300&h=200&fit=crop',
-    comments: 15,
-    likes: 1,
-  }
-];
+interface Offer {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
+  categoryName: string;
+  regionId: number;
+  regionName: string;
+  mainImageUrl: string;
+  createdAt: string;
+}
+
+interface ApiResponse {
+  data: UserProfile | null;
+  success: boolean;
+  message: string;
+}
+
+interface FollowersApiResponse {
+  data: FollowedUser[];
+  success: boolean;
+  message: string;
+}
 
 export default function ProfilePage() {
   const t = useTranslations();
   const [activeTab, setActiveTab] = useState('info');
-  const [following, setFollowing] = useState(followingUsers);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [followedUsers, setFollowedUsers] = useState<FollowedUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [followersLoading, setFollowersLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [followersError, setFollowersError] = useState<string | null>(null);
+  const { getToken } = useAuth();
+  const locale = useLocale();
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const token = getToken();
 
-  const handleUnfollow = (userId: number) => {
-    setFollowing(prev => 
-      prev.map(user => 
-        user.id === userId 
-          ? { ...user, isFollowing: false }
-          : user
-      )
-    );
+        if (!token) {
+          setError('Not authenticated');
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get<ApiResponse>('http://alaamohamad-001-site1.qtempurl.com/api/User/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Accept-Language': locale,
+          }
+        });
+
+        if (response.data.success && response.data.data) {
+          setProfile(response.data.data);
+        } else {
+          setError(response.data.message);
+        }
+      } catch (err) {
+        setError('Failed to fetch profile data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [getToken]);
+
+  const fetchFollowedUsers = async () => {
+    try {
+      setFollowersLoading(true);
+      setFollowersError(null);
+      const token = getToken();
+
+      if (!token) {
+        setFollowersError('Not authenticated');
+        return;
+      }
+
+      const response = await axios.get<FollowersApiResponse>('http://alaamohamad-001-site1.qtempurl.com/api/followers/following', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Accept-Language': locale,
+        }
+      });
+
+      if (response.data.success) {
+        setFollowedUsers(response.data.data || []);
+      } else {
+        setFollowersError(response.data.message || 'Failed to fetch followed users');
+      }
+    } catch (err) {
+      setFollowersError('Failed to fetch followed users');
+      console.error(err);
+    } finally {
+      setFollowersLoading(false);
+    }
   };
+
+  // Fetch followed users when switching to following tab
+  useEffect(() => {
+    if (activeTab === 'following' && followedUsers.length === 0 && !followersLoading) {
+      fetchFollowedUsers();
+    }
+  }, [activeTab]);
+
+  const handleUnfollow = async (userId: string) => {
+    try {
+      const response = await toggleFollow(parseInt(userId), locale);
+
+      if (response.success) {
+        // If the user is now unfollowed, remove them from the list
+        if (!response.data?.isFollowed) {
+          setFollowedUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        }
+      } else {
+        console.error('Failed to unfollow user:', response.message);
+        alert(response.message || 'Failed to unfollow user');
+      }
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+      alert('Failed to unfollow user. Please try again.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-primary-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen bg-primary-bg flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">{t('common.error')}</h2>
+          <p className="text-gray-600">{error || 'Unable to load profile data'}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-primary-accent text-white rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            {t('common.tryAgain')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const joinedDate = new Date(profile.offers[0]?.createdAt || Date.now()).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long'
+  });
 
   return (
     <div className="min-h-screen bg-primary-bg py-4 sm:py-8">
@@ -78,36 +194,40 @@ export default function ProfilePage() {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8 mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                {profile.profilePhotoUrl ? (
+                  <img
+                    src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${profile.profilePhotoUrl}`}
+                    alt={profile.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                )}
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{currentUser.name}</h1>
-                    <p className="text-gray-600 mt-1">{t('user.joinedDate')} {currentUser.joinedDate}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{profile.name}</h1>
+                    <p className="text-gray-600 mt-1">{t('user.joinedDate')} {joinedDate}</p>
                   </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                      <Share2 className="w-4 h-4" />
-                      {t('profile.shareProfile')}
-                    </button>
-                  </div>
+
                 </div>
-                
+
                 {/* Stats */}
                 <div className="flex items-center gap-6 mt-4">
                   <div className="text-center">
-                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{currentUser.adsCount}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{profile.offers.length}</div>
                     <div className="text-xs sm:text-sm text-gray-500">{t('user.myAds')}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{currentUser.followersCount}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">0</div>
                     <div className="text-xs sm:text-sm text-gray-500">{t('user.followers')}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{currentUser.followingCount}</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {followersLoading ? '...' : followedUsers.length}
+                    </div>
                     <div className="text-xs sm:text-sm text-gray-500">{t('user.following')}</div>
                   </div>
                 </div>
@@ -122,11 +242,10 @@ export default function ProfilePage() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`flex-1 px-6 py-4 text-sm sm:text-base font-medium transition-colors ${
-                    activeTab === tab
-                      ? 'text-primary-accent border-b-2 border-primary-accent bg-primary-accent/5'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`flex-1 px-6 py-4 text-sm sm:text-base font-medium transition-colors ${activeTab === tab
+                    ? 'text-primary-accent border-b-2 border-primary-accent bg-primary-accent/5'
+                    : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   {tab === 'info' && t('user.userInfo')}
                   {tab === 'following' && t('user.followingUsers')}
@@ -142,29 +261,29 @@ export default function ProfilePage() {
             {activeTab === 'info' && (
               <div className="space-y-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{t('user.userInfo')}</h2>
-                
+
                 <div className="grid gap-4">
                   <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                     <User className="w-5 h-5 text-primary-accent" />
                     <div>
                       <p className="text-sm text-gray-500">{t('user.name')}</p>
-                      <p className="font-medium text-gray-900">{currentUser.name}</p>
+                      <p className="font-medium text-gray-900">{profile.name}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                     <Phone className="w-5 h-5 text-primary-accent" />
                     <div>
                       <p className="text-sm text-gray-500">{t('user.phoneNumber')}</p>
-                      <p className="font-medium text-gray-900">{currentUser.phone}</p>
+                      <p className="font-medium text-gray-900">{profile.phoneNumber}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                     <Calendar className="w-5 h-5 text-primary-accent" />
                     <div>
                       <p className="text-sm text-gray-500">{t('user.joinedDate')}</p>
-                      <p className="font-medium text-gray-900">{currentUser.joinedDate}</p>
+                      <p className="font-medium text-gray-900">{joinedDate}</p>
                     </div>
                   </div>
                 </div>
@@ -176,10 +295,29 @@ export default function ProfilePage() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{t('user.followingUsers')}</h2>
-                  <span className="text-sm text-gray-500">{following.filter(u => u.isFollowing).length} {t('user.following').toLowerCase()}</span>
+                  <span className="text-sm text-gray-500">
+                    {followersLoading ? '...' : followedUsers.length} {t('user.following').toLowerCase()}
+                  </span>
                 </div>
-                
-                {following.filter(u => u.isFollowing).length === 0 ? (
+
+                {followersLoading ? (
+                  <div className="text-center py-12">
+                    <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-500">{t('common.loading')}</p>
+                  </div>
+                ) : followersError ? (
+                  <div className="text-center py-12">
+                    <Users className="w-16 h-16 text-red-300 mx-auto mb-4" />
+                    <p className="text-red-500 font-medium text-lg">{t('common.error')}</p>
+                    <p className="text-gray-400 mt-2">{followersError}</p>
+                    <button
+                      onClick={fetchFollowedUsers}
+                      className="mt-4 px-4 py-2 bg-primary-accent text-white rounded-lg hover:bg-primary-dark transition-colors"
+                    >
+                      {t('common.tryAgain')}
+                    </button>
+                  </div>
+                ) : followedUsers.length === 0 ? (
                   <div className="text-center py-12">
                     <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500 font-medium text-lg">{t('user.noFollowing')}</p>
@@ -187,18 +325,26 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="grid gap-4">
-                    {following.filter(u => u.isFollowing).map((user) => (
+                    {followedUsers.map((user) => (
                       <div key={user.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center">
-                            <User className="w-6 h-6 text-white" />
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary-accent to-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+                            {user.profilePhotoUrl ? (
+                              <img
+                                src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${user.profilePhotoUrl}`}
+                                alt={user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-6 h-6 text-white" />
+                            )}
                           </div>
                           <div>
                             <h3 className="font-semibold text-gray-900">{user.name}</h3>
-                            <p className="text-sm text-gray-500">{user.adsCount} {t('common.ads')}</p>
+                            <p className="text-sm text-gray-500">{user.phoneNumber}</p>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center flex-col sm:flex-row gap-2">
                           <Link
                             href={`/profile/${user.id}`}
@@ -236,11 +382,11 @@ export default function ProfilePage() {
 
                 <div className="flex gap-4 border-b border-gray-200">
                   <button className="px-4 py-2 text-sm font-medium text-primary-accent border-b-2 border-primary-accent">
-                    {t('user.myAds')} ({userAds.length})
+                    {t('user.myAds')} ({profile.offers.length})
                   </button>
                 </div>
-                
-                {userAds.length === 0 ? (
+
+                {profile.offers.length === 0 ? (
                   <div className="text-center py-12">
                     <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500 font-medium text-lg">{t('user.noAds')}</p>
@@ -248,25 +394,25 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userAds.map((ad) => (
-                      <Link href={`/ad/${ad.id}`} key={ad.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                    {profile.offers.map((offer) => (
+                      <Link href={`/ad/${offer.id}`} key={offer.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-[4/3] relative">
-                        <WatermarkedImgTag
-                          src={ad.image}
-                          alt={ad.title}
-                          className="w-full h-full object-cover"
-                          watermarkPosition="bottom-right"
-                          watermarkSize="medium"
-                        />
+                          <WatermarkedImgTag
+                            src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${offer.mainImageUrl}`}
+                            alt={offer.name}
+                            className="w-full h-full object-cover"
+                            watermarkPosition="bottom-right"
+                            watermarkSize="medium"
+                          />
                         </div>
-                        
+
                         <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{ad.title}</h3>
-                          <p className="text-lg font-bold text-primary-accent mb-2">{ad.price}</p>
-                          
+                          <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{offer.name}</h3>
+                          <p className="text-lg font-bold text-primary-accent mb-2">{offer.price}</p>
+
                           <div className="flex items-center justify-between text-sm text-gray-500">
-                            <span>{ad.comments} comments</span>
-                            <span>{ad.likes} likes</span>
+                            <span>{offer.categoryName}</span>
+                            <span>{new Date(offer.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </Link>

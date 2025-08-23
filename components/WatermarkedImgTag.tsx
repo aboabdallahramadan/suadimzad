@@ -23,6 +23,7 @@ const WatermarkedImgTag = ({
   showWatermark = true,
   ...props
 }: WatermarkedImgTagProps) => {
+  console.log(src);
   const [imageLoaded, setImageLoaded] = useState(false)
 
   const getWatermarkPositionClass = () => {

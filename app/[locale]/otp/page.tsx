@@ -1,28 +1,36 @@
 "use client";
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
+import { verifyOtp, loginWithPhone } from '@/lib/api';
+import { useAuth, User } from '@/lib/auth-context';
 
 export default function OTPPage() {
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+  const { setUser } = useAuth();
+
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [userId, setUserId] = useState<number | null>(null);
   const [type, setType] = useState('');
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  
+  const [isVerifying, setIsVerifying] = useState(false);  
+  const [error, setError] = useState('');
+  const local = useLocale();
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const phone = searchParams.get('phone');
     const authType = searchParams.get('type');
-    
+    const userIdParam = searchParams.get('userId');
+
     if (phone) setPhoneNumber(phone);
     if (authType) setType(authType);
+    if (userIdParam) setUserId(parseInt(userIdParam, 10));
   }, [searchParams]);
 
   useEffect(() => {
@@ -36,7 +44,7 @@ export default function OTPPage() {
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -57,12 +65,12 @@ export default function OTPPage() {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     const newOtp = [...otp];
-    
+
     for (let i = 0; i < pastedData.length; i++) {
       newOtp[i] = pastedData[i];
     }
     setOtp(newOtp);
-    
+
     // Focus the next empty input or the last one
     const nextIndex = Math.min(pastedData.length, 5);
     inputRefs.current[nextIndex]?.focus();
@@ -70,22 +78,56 @@ export default function OTPPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     const otpCode = otp.join('');
-    if (otpCode.length === 6) {
+
+    if (otpCode.length === 6 && userId) {
       setIsVerifying(true);
-      // Simulate verification delay
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
+
+      try {
+        const response = await verifyOtp(userId, otpCode, local);
+
+        if (response.success && response.data) {
+          // Update user in auth context
+          setUser(response.data.user as User);
+
+          // Redirect to home page
+          router.push('/');
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(t('auth.invalidOtp') || 'Invalid verification code');
+        }
+        setIsVerifying(false);
+      }
+    } else {
+      setError(t('auth.completeOtp') || 'Please enter the complete verification code');
     }
   };
 
-  const handleResendCode = () => {
-    if (canResend) {
+  const handleResendCode = async () => {
+    if (canResend && phoneNumber) {
+      setError('');
       setCountdown(60);
       setCanResend(false);
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
+
+      try {
+        const response = await loginWithPhone(phoneNumber, local);
+
+        if (response.success && response.data) {
+          setUserId(response.data.userId);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(t('auth.resendFailed') || 'Failed to resend verification code');
+        }
+      }
     }
   };
 
@@ -125,13 +167,19 @@ export default function OTPPage() {
 
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 backdrop-blur-sm">
+          {error && (
+            <div className="mb-6 p-3 bg-red-50 border border-red-100 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* OTP Input */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 text-center mb-6">
                 {t('auth.enterOtpCode')}
               </label>
-              <div className="flex justify-center space-x-3" onPaste={handlePaste}>
+              <div className="flex justify-center space-x-1" onPaste={handlePaste} dir="ltr">
                 {otp.map((digit, index) => (
                   <input
                     key={index}

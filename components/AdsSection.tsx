@@ -1,73 +1,126 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { AdSmall } from '@/types/adSmall';
-import { Heart, MessageCircle, Clock, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Heart, MessageCircle, Clock, MapPin, Eye } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import WatermarkedImgTag from './WatermarkedImgTag';
+import axios from 'axios';
+import { useAuth } from '@/lib/auth-context';
 
-// Dummy data for ads
-const generateDummyAds = (count: number, startId: number = 1): AdSmall[] => {
-  const categories = ['Cars', 'Electronics', 'Real Estate', 'Furniture', 'Services', 'Jobs'];
-  const locations = ['Doha', 'Al Rayyan', 'Al Wakrah', 'Umm Salal', 'Al Khor', 'Al Shamal'];
-  const titles = [
-    'iPhone 15 Pro Max - Excellent Condition',
-    'Toyota Camry 2023 - Low Mileage',
-    'Luxury Villa in Al Rayyan - 4 Bedrooms',
-    'Modern Sofa Set - Like New',
-    'Professional Cleaning Services',
-    'Senior Software Developer Position',
-    'Samsung Galaxy S24 Ultra',
-    'Honda Civic 2022 - Single Owner',
-    'Spacious Apartment in West Bay',
-    'Dining Table Set - Wooden',
-    'Home Maintenance Services',
-    'Marketing Manager Job Opening',
-    'MacBook Pro M3 - 16 inch',
-    'Nissan Altima 2023 - Pristine',
-    'Commercial Office Space',
-    'Bedroom Set - Complete',
-    'Landscaping Services',
-    'Accountant Position Available',
-    'iPad Pro 2024 - 12.9 inch',
-    'BMW X5 2022 - Luxury SUV'
-  ];
+// Updated Ad type to match API response
+interface AdSmall {
+  id: number;
+  name: string;
+  price: number;
+  mainImageUrl: string;
+  categoryId: number;
+  categoryName: string;
+  regionId: number;
+  regionName: string;
+  createdAt: string;
+  description?: string;
+  // We'll keep these fields for UI compatibility but they won't be populated from API
+  numberOfViews: number;
+  numberOfComments: number;
+  numberOfFavorites: number;
+}
 
-  return Array.from({ length: count }, (_, index) => ({
-    id: (startId + index).toString(),
-    title: titles[index % titles.length],
-    price: Math.floor(Math.random() * 50000) + 1000,
-    image: `https://picsum.photos/300/200?random=${startId + index}`,
-    comments: Math.floor(Math.random() * 50) + 1,
-    likes: Math.floor(Math.random() * 100) + 5,
-    category: categories[index % categories.length],
-    location: locations[index % locations.length],
-    createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString()
-  }));
-};
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    items: AdSmall[];
+    hasMore: boolean;
+    nextCursor: number | null;
+  };
+}
 
-const AdsSection: React.FC = () => {
+interface AdsSectionProps {
+  search?: string;
+}
+
+const AdsSection: React.FC<AdsSectionProps> = ({ search }) => {
   const t = useTranslations();
-  const [ads, setAds] = useState<AdSmall[]>(generateDummyAds(12));
-  const [loading, setLoading] = useState(false);
+  const [ads, setAds] = useState<AdSmall[]>([]);
+  const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { getToken } = useAuth();
+  const locale = useLocale();
+
+
+  const API_BASE_URL = 'http://alaamohamad-001-site1.qtempurl.com';
+
+  const fetchAds = async (cursor: number | null = null) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Build params for axios request
+      const params: Record<string, string | number> = {
+        limit: 12
+      };
+
+      if (cursor) {
+        params.cursor = cursor;
+      }
+      if (search) {
+        params.searchTerm = search;
+      }
+
+      const response = await axios.get<ApiResponse>(`${API_BASE_URL}/api/offers`, {
+        params,
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+          'Accept-Language': locale
+        }
+      });
+      console.log(response.data)
+
+      return response.data.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || err.message || 'Failed to fetch ads');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to fetch ads');
+      }
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initialize ads only on the client side
+  useEffect(() => {
+    const initializeAds = async () => {
+      const result = await fetchAds();
+      if (result) {
+        setAds(result.items);
+        setHasMore(result.hasMore);
+        setNextCursor(result.nextCursor);
+      } else {
+        setAds([]);
+        setHasMore(false);
+        setNextCursor(null);
+      }
+      setMounted(true);
+    };
+
+    initializeAds();
+  }, [search]);
 
   const loadMoreAds = async () => {
-    setLoading(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newAds = generateDummyAds(20, ads.length + 1);
-    setAds(prevAds => [...prevAds, ...newAds]);
-    
-    // Simulate end of data after 100 ads
-    if (ads.length >= 80) {
-      setHasMore(false);
+    if (!nextCursor || loading) return;
+
+    const result = await fetchAds(nextCursor);
+    if (result) {
+      setAds(prevAds => [...prevAds, ...result.items]);
+      setHasMore(result.hasMore);
+      setNextCursor(result.nextCursor);
     }
-    
-    setLoading(false);
   };
 
   const formatPrice = (price: number) => {
@@ -75,10 +128,12 @@ const AdsSection: React.FC = () => {
   };
 
   const getTimeAgo = (dateString: string) => {
+    if (!mounted) return ''; // Return empty string during server-side rendering
+
     const now = new Date();
     const date = new Date(dateString);
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) return t('ads.today');
     if (diffInDays === 1) return t('ads.yesterday');
     if (diffInDays < 7) return t('ads.daysAgo', { days: diffInDays });
@@ -100,63 +155,90 @@ const AdsSection: React.FC = () => {
           <div className="w-24 h-1 bg-gradient-to-r from-primary-color to-secondary-color mx-auto mt-4 rounded-full"></div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 text-center">
+            {error}
+          </div>
+        )}
+
+        {/* Loading State (Initial Load) */}
+        {!mounted && loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-accent"></div>
+          </div>
+        )}
+
         {/* Ads Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-          {ads.map((ad) => (
-            <Link
-              key={ad.id}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer transform hover:-translate-y-1"
-              href={`/ad/${ad.id}`}
-            >
-              {/* Ad Image */}
-              <div className="relative overflow-hidden">
-                <WatermarkedImgTag
-                  src={ad.image}
-                  alt={ad.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  watermarkPosition="bottom-right"
-                  watermarkSize="medium"
-                />
-                <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
-                  {ad.category}
-                </div>
-              </div>
-
-              {/* Ad Content */}
-              <div className="p-5">
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-accent transition-colors">
-                  {ad.title}
-                </h3>
-                
-                <div className="flex items-center text-sm text-gray-500 mb-3">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  <span>{ad.location}</span>
-                  <Clock className="w-4 h-4 ml-3 mr-1" />
-                  <span>{getTimeAgo(ad.createdAt)}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-primary-accent">
-                    {formatPrice(ad.price)} QR
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Heart className="w-4 h-4 mr-1" />
-                      <span>{ad.likes}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <MessageCircle className="w-4 h-4 mr-1" />
-                      <span>{ad.comments}</span>
-                    </div>
+        {mounted && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+            {ads.map((ad) => (
+              <Link
+                key={ad.id}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer transform hover:-translate-y-1"
+                href={`/ad/${ad.id}`}
+              >
+                {/* Ad Image */}
+                <div className="relative overflow-hidden">
+                  <WatermarkedImgTag
+                    src={`http://alaamohamad-001-site1.qtempurl.com/uploads/${ad.mainImageUrl}`} // Fallback image if mainImageUrl is missing
+                    alt={ad.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    watermarkPosition="bottom-right"
+                    watermarkSize="medium"
+                  />
+                  <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
+                    {ad.categoryName}
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+
+                {/* Ad Content */}
+                <div className="p-5">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-accent transition-colors">
+                    {ad.name}
+                  </h3>
+
+                  <div className="flex items-center text-sm text-gray-500 mb-3">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    <span>{ad.regionName}</span>
+                    <Clock className="w-4 h-4 ml-3 mr-1" />
+                    <span>{mounted ? getTimeAgo(ad.createdAt) : ''}</span>
+                  </div>
+
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-0">
+                    <div className="text-2xl font-bold text-primary-accent">
+                      {formatPrice(ad.price)} QR
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Heart className="w-4 h-4 mr-1" />
+                        <span>{ad.numberOfFavorites || 0}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        <span>{ad.numberOfComments || 0}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Eye className="w-4 h-4 mr-1" />
+                        <span>{ad.numberOfViews || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {mounted && ads.length === 0 && !loading && !error && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">{t('ads.noAdsAvailable')}</p>
+          </div>
+        )}
 
         {/* Load More Button */}
-        {hasMore && (
+        {mounted && hasMore && (
           <div className="text-center">
             <button
               onClick={loadMoreAds}
@@ -184,7 +266,7 @@ const AdsSection: React.FC = () => {
         )}
 
         {/* No More Ads Message */}
-        {!hasMore && (
+        {mounted && !hasMore && ads.length > 0 && (
           <div className="text-center">
             <p className="text-gray-500 text-lg">{t('ads.noMoreAds')}</p>
           </div>

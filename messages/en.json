@@ -106,7 +106,10 @@
       "searchPlaceholder": "Search for anything...",
       "loading": "Loading...",
       "error": "Error occurred",
-      "home": "Home"
+      "home": "Home",
+      "backToChats": "Back to Chats",
+      "search": "Search",
+      "loadMore": "Load more"
     },
     "footer": {
       "description": "Top Classified Site in Gulf. Post free ads. Buy and sell used cars, apartment for rent, search jobs and more cheap quality items in Gulf",
@@ -158,6 +161,7 @@
       "success": "Ad posted successfully!",
       "error": "Error posting ad. Please try again.",
       "selectLocation": "Select a location",
+      "selectCategoryFirst": "Please select a category first to see relevant information fields",
       "selectSubcategoryFirst": "Please select a subcategory first to see relevant information fields"
     },
     "adDetails": {
@@ -166,7 +170,8 @@
       "share": "Share",
       "memberSince": "Member since",
       "showNumber": "Show number",
-      "follow": "Follow"
+      "follow": "Follow",
+      "loves": "Loves"
     },
     "locations": {
       "Riyadh": "Riyadh",
@@ -207,6 +212,7 @@
       "seeMore": "See More Ads",
       "loading": "Loading...",
       "noMoreAds": "No more ads to show",
+      "noAdsAvailable": "No ads available at the moment.",
       "today": "Today",
       "yesterday": "Yesterday",
       "daysAgo": "{days} days ago",
@@ -305,6 +311,7 @@
     "user": {
       "profile": "Profile",
       "favorites": "Favorites",
+      "favoriteAd": "Favorite Ad",
       "login": "Login",
       "logout": "Logout",
       "myProfile": "My Profile",
@@ -337,7 +344,8 @@
       "noAdsDescUser": "This user hasn't posted any ads yet",
       "likes": "likes",
       "comments": "comments",
-      "chats": "Chats"
+      "chats": "Chats",
+      "register": "Register"
     },
     "profile": {
       "title": "Profile",
@@ -350,13 +358,19 @@
       "memberSince": "Member since",
       "showNumber": "Show number",
       "follow": "Follow",
+      "following": "Following",
       "chat": "Chat"
     },
     "comments": {
       "addComment": "Add comment",
       "addCommentPlaceholder": "Enter comment here",
       "comments": "Comments",
-      "noComments": "No comments yet"
+      "noComments": "No comments yet",
+      "showReplies": "Show Replies",
+      "hideReplies": "Hide Replies",
+      "reply": "Reply",
+      "replyPlaceholder": "Write your reply here",
+      "noReplies": "No replies yet"
     },
     "chat": {
       "title": "Messages",
@@ -399,7 +413,14 @@
       "active": "Active",
       "lastSeen": "Last seen",
       "startConversation": "Start a conversation",
-      "sendYourFirstMessage": "Send your first message to start chatting"
+      "sendYourFirstMessage": "Send your first message to start chatting",
+      "noMessages": "No messages yet",
+      "messages": "Messages",
+      "searchPlaceholder": "Search chats...",
+      "clickToChat": "Click to chat"
+    },
+    "search": {
+      "searchFavorites": "Search Favorites"
     }
   }
   

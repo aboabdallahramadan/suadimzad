@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { Mulish } from "next/font/google";
 import { Header } from "@/components/header/Header";
 import { Footer } from "@/components/Footer";
+import ClientLayout from "./ClientLayout";
 
 const mulish = Mulish({
   variable: "--font-mulish",
@@ -31,13 +32,15 @@ export default async function LocaleLayout({
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <div className={`${mulish.variable} min-h-screen flex flex-col font-sans`}>
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer/>
-          </div>
+          <ClientLayout>
+            <div className={`${mulish.variable} min-h-screen flex flex-col font-sans`}>
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer/>
+            </div>
+          </ClientLayout>
         </NextIntlClientProvider>
       </body>
     </html>

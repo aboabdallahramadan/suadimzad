@@ -1,134 +1,77 @@
 "use client";
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
-import { Bell, Filter, Search, Trash } from 'lucide-react';
-
-// Extended notifications data
-const allNotifications = [
-  {
-    id: 1,
-    type: 'message',
-    title: 'New message from Ahmad',
-    description: 'Interested in your Toyota Camry listing. "Is this still available? Can we meet tomorrow?"',
-    time: '2 minutes ago',
-    isRead: false,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  },
-  {
-    id: 2,
-    type: 'like',
-    title: 'Someone liked your ad',
-    description: 'Your "iPhone 14 Pro" listing received a new like from Sara M.',
-    time: '15 minutes ago',
-    isRead: false,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  },
-  {
-    id: 3,
-    type: 'view',
-    title: 'Ad performance update',
-    description: 'Your apartment listing has 25 new views today and 3 contact requests.',
-    time: '1 hour ago',
-    isRead: true,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  },
-  {
-    id: 4,
-    type: 'system',
-    title: 'Premium feature unlocked',
-    description: 'You can now use advanced search filters and priority listing features.',
-    time: '3 hours ago',
-    isRead: true,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  },
-  {
-    id: 5,
-    type: 'payment',
-    title: 'Payment successful',
-    description: 'Your premium listing package is now active. Your ads will appear at the top.',
-    time: '1 day ago',
-    isRead: true,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  },
-  {
-    id: 6,
-    type: 'message',
-    title: 'New message from Khalid',
-    description: 'Question about your furniture set: "What is the condition of the sofa?"',
-    time: '2 days ago',
-    isRead: true,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  },
-  {
-    id: 7,
-    type: 'like',
-    title: 'Multiple likes received',
-    description: 'Your "Gaming Setup" ad received 5 new likes in the last hour.',
-    time: '2 days ago',
-    isRead: true,
-    icon: Bell,
-    iconColor: 'text-primary-accent',
-    bgColor: 'bg-blue-50'
-  }
-];
+import { useLocale, useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { Bell, Filter, Search, Loader2 } from 'lucide-react';
+import {
+  getMyNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from '@/lib/notificationService';
+import { Notification } from '@/types/notification';
+import { useAuth } from '@/lib/auth-context';
 
 export default function NotificationsPage() {
   const t = useTranslations();
-  const [notifications, setNotifications] = useState(allNotifications);
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const locale = useLocale();
+  const { getToken } = useAuth();
+  const fetchNotifications = async (reset = false) => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const currentPage = reset ? 1 : page;
+      console.log(getToken())
+      const data = await getMyNotifications(locale, getToken(), currentPage, 20);
+      setNotifications(prev => (reset ? data.notifications : [...prev, ...data.notifications]));
+      setHasMore(data.notifications.length === 20);
+      if (reset) setPage(2);
+      else setPage(prev => prev + 1);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Filter notifications
+  useEffect(() => {
+    fetchNotifications(true);
+  }, [user]);
+
   const filteredNotifications = notifications.filter(notification => {
-    const matchesFilter = filter === 'all' || 
-                         (filter === 'unread' && !notification.isRead) ||
-                         (filter === 'read' && notification.isRead) ||
-                         notification.type === filter;
-    
+    const matchesFilter = filter === 'all' ||
+      (filter === 'unread' && !notification.isRead) ||
+      (filter === 'read' && notification.isRead);
+
     const matchesSearch = notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         notification.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
+      notification.body.toLowerCase().includes(searchQuery.toLowerCase());
+
     return matchesFilter && matchesSearch;
   });
 
-  // Mark notification as read
-  const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
+  const handleMarkAsRead = async (id: number) => {
+    try {
+      await markNotificationAsRead(locale, getToken(), id);
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
-  // Mark all notifications as read
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
-  };
-
-  // Delete notification
-  const deleteNotification = (id: number) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  // Clear all notifications
-  const clearAllNotifications = () => {
-    setNotifications([]);
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllNotificationsAsRead(locale, getToken());
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -151,23 +94,16 @@ export default function NotificationsPage() {
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <button
-                  onClick={markAllAsRead}
+                  onClick={handleMarkAllAsRead}
                   className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-primary-accent bg-primary-accent/10 rounded-lg hover:bg-primary-accent/20 transition-colors"
                 >
                   {t('notifications.markAllRead')}
-                </button>
-                <button
-                  onClick={clearAllNotifications}
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                >
-                  {t('notifications.clearAll')}
                 </button>
               </div>
             </div>
 
             {/* Search and Filter */}
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              {/* Search */}
               <div className="relative flex-1">
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <input
@@ -179,7 +115,6 @@ export default function NotificationsPage() {
                 />
               </div>
 
-              {/* Filter */}
               <div className="relative sm:w-auto">
                 <select
                   value={filter}
@@ -195,72 +130,75 @@ export default function NotificationsPage() {
             </div>
           </div>
 
-          {/* Notifications List */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
-            {filteredNotifications.length === 0 ? (
-              <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
-                <Bell className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
-                <p className="text-gray-500 font-medium text-base sm:text-lg">{t('notifications.noNotifications')}</p>
-                <p className="text-gray-400 text-sm sm:text-base mt-1 sm:mt-2">{t('notifications.noNotificationsDesc')}</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {filteredNotifications.map((notification) => {
-                  const IconComponent = notification.icon;
-                  return (
+          {isLoading && notifications.length === 0 ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-12 h-12 text-primary-accent animate-spin mx-auto" />
+              <p className="mt-4 text-lg text-gray-600">Loading notifications...</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+              {filteredNotifications.length === 0 ? (
+                <div className="px-4 sm:px-6 py-8 sm:py-12 text-center">
+                  <Bell className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+                  <p className="text-gray-500 font-medium text-base sm:text-lg">{t('notifications.noNotifications')}</p>
+                  <p className="text-gray-400 text-sm sm:text-base mt-1 sm:mt-2">{t('notifications.noNotificationsDesc')}</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-200">
+                  {filteredNotifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`relative px-4 sm:px-6 py-4 sm:py-5 hover:bg-gray-50 transition-colors ${
-                        !notification.isRead ? 'bg-blue-50/30 border-l-4 border-l-blue-500' : ''
-                      }`}
+                      className={`relative px-4 sm:px-6 py-4 sm:py-5 hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-blue-50/30 border-l-4 border-l-blue-500' : ''}`}
                     >
                       <div className="flex items-start gap-3 sm:gap-4">
-                        <div className={`p-2 sm:p-3 rounded-full ${notification.bgColor} flex-shrink-0`}>
-                          <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${notification.iconColor}`} />
+                        <div className={`p-2 sm:p-3 rounded-full bg-blue-50 flex-shrink-0`}>
+                          <Bell className={`w-4 h-4 sm:w-5 sm:h-5 text-primary-accent`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
                             <div className="flex-1 pr-2">
-                              <h3 className={`text-sm sm:text-base font-medium text-gray-900 ${
-                                !notification.isRead ? 'font-semibold' : ''
-                              }`}>
+                              <h3 className={`text-sm sm:text-base font-medium text-gray-900 ${!notification.isRead ? 'font-semibold' : ''}`}>
                                 {notification.title}
                                 {!notification.isRead && (
                                   <span className="ml-2 w-2 h-2 bg-blue-600 rounded-full inline-block"></span>
                                 )}
                               </h3>
                               <p className="text-sm sm:text-base text-gray-600 mt-1 leading-relaxed">
-                                {notification.description}
+                                {notification.body}
                               </p>
                               <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3">
-                                {notification.time}
+                                {new Date(notification.createdAt).toLocaleString()}
                               </p>
                             </div>
                             <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 ml-2 sm:ml-4">
                               {!notification.isRead && (
                                 <button
-                                  onClick={() => markAsRead(notification.id)}
+                                  onClick={() => handleMarkAsRead(notification.id)}
                                   className="px-2 sm:px-3 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors whitespace-nowrap"
                                 >
                                   Mark as read
                                 </button>
                               )}
-                              <button
-                                onClick={() => deleteNotification(notification.id)}
-                                className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
-                              >
-                                <Trash className="w-3 h-3 sm:w-4 sm:h-4" />
-                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {hasMore && !isLoading && (
+            <div className="text-center mt-6">
+              <button
+                onClick={() => fetchNotifications()}
+                className="bg-primary-accent text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors font-semibold"
+              >
+                Load More
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

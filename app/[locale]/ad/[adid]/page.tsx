@@ -1,158 +1,177 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { Ad } from '@/types/ad';
 import Images from '@/components/adDetails/Images';
 import AdDetails from '@/components/adDetails/AdDetails';
 import UserProfileSection from '@/components/adDetails/UserProfileSection';
 import CommentsSection from '@/components/adDetails/CommentsSection';
 import SimilarAds from '@/components/adDetails/SimilarAds';
+import { useLocale } from 'next-intl';
+import { useAuth } from '@/lib/auth-context';
 
-// Dummy ad data for detail page
-const dummyAdDetail: Ad = {
-  id: '1',
-  adDetails: {
-    title: 'Haring driver. snoonu. carcon',
-    price: 6000,
-    category: 'Job',
-    subcategory: 'Drivers &',
-    location: 'Doha',
-    timeAgo: '1 week ago',
-    extraInfo: [{
-      name: 'Ad Type',
-      value: 'Job Offer'
-    },
-    {
-      name: 'Gender',
-      value: 'Both'
-    },
-    {
-      name: 'Nationality',
-      value: 'Any'
-    },
-    {
-      name: 'Qualification',
-      value: 'Any'
-    },
-    {
-      name: 'Experience',
-      value: '3 years'
-    },
-    {
-      name: 'Salary',
-      value: 'Commission'
-    },
-    {
-      name: 'Career',
-      value: 'Experienced'
-    },
-    {
-      name: 'Is Driver',
-      value: 'Yes'
-    },
-    {
-      name: 'Job Type',
-      value: 'Full Time'
-    }],
-    likes: 5,
-    views: 15482,
-    description: 'Hiring male and female drivers with their own cars. Quick registration. Reliable delivery services at Al-Hadaf Delivery Services Company. *Available Jobs:* 1. *Drivers with their own cars* 200 vacancies. Application fee: 14 riyals. 2. Motorcycle drivers: 100 vacancies. Application fee: 10 riyals, including the Sununu app. Valid Qatari residency. Valid Qatari license. Vehicle registration. Benefits: Car maintenance garage. Ain Khaled, next to Ramez. Area 56, Street 964, Building No. 139. To contact: 31010766. Al-Hadaf Delivery Services Company',
-  },
-  images: [
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1549924231-f129b911e442?w=800&h=600&fit=crop'
-  ],
-  user: {
-    id: '1',
-    name: 'Mohammad Al-Haj',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face',
-    memberSince: '11 months ago',
-    phoneNumber: '74036872'
-  },
-  comments: [
-    {
-      id: '1',
-      user: {
-        name: 'Abdul Faheem',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
-      },
-      comment: '74036872',
-      timeAgo: '23 hours ago'
-    },
-    {
-      id: '2',
-      user: {
-        name: 'MUHAMMAD HAYAT',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
-      },
-      comment: 'Interested in this position',
-      timeAgo: '1 day ago'
+interface OfferResponse {
+  data: {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    categoryId: number;
+    categoryName: string;
+    regionId: number;
+    regionName: string;
+    mainImageUrl: string;
+    additionalImages: string[];
+    createdAt: string;
+    isActive: boolean;
+    providerId: number;
+    providerIsFollowed: boolean;
+    providerName: string;
+    providerPhoneNumber: string;
+    providerProfilePhotoUrl: string;
+    providerCreatedAt: string;
+    numberOfFavorites: number;
+    isFavorite: boolean;
+    numberOfViews: number;
+  };
+  success: boolean;
+  message: string;
+}
+
+// Function to fetch offer data from API
+async function getOfferById(id: string, locale: string = 'en', token: string = ''): Promise<OfferResponse> {
+  try {
+    // Use absolute URL to avoid issues with relative paths
+    const baseUrl = 'http://alaamohamad-001-site1.qtempurl.com';
+    const response = await fetch(`${baseUrl}/api/offers/${id}`, {
+      cache: 'no-store', // Don't cache this request
+      headers: {
+        'Accept-Language': locale,
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch offer data');
     }
-  ],
-  similarAds: [
-    {
-      id: '1',
-      title: 'Hiring driver. snoonu. carcon',
-      price: 6000,
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-      comments: 10,
-      likes: 100
-    },
-    
-    {
-      id: '2',
-      title: 'Hiring driver. snoonu. carcon',
-      price: 6000,
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-      comments: 10,
-      likes: 100
-    },
-    {
-      id: '3',
-      title: 'Hiring driver. snoonu. carcon 3',
-      price: 6000,
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-      comments: 10,
-      likes: 100
-    },
-    {
-      id: '4',
-      title: 'Hiring driver. snoonu. carcon 4',
-      price: 6000,
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-      comments: 10,
-      likes: 100
-    },
-    {
-      id: '5',
-      title: 'Hiring driver. snoonu. carcon 5',
-      price: 6000,
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-      comments: 10,
-      likes: 100
-    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching offer data:', error);
+    throw error;
+  }
+}
 
-  ]
-};
+// Map API response to Ad structure
+function mapOfferToAd(offer: OfferResponse['data']): Ad {
+  return {
+    id: offer.id.toString(),
+    adDetails: {
+      id: offer.id,
+      title: offer.name,
+      price: offer.price,
+      category: offer.categoryName,
+      location: offer.regionName,
+      timeAgo: new Date(offer.createdAt).toLocaleDateString(),
+      numberOfViews: offer.numberOfViews,
+      numberOfFavorites: offer.numberOfFavorites,
+      isFavorite: offer.isFavorite,
+      extraInfo: [
 
-export default async function AdDetailPage() {
+        {
+          name: 'Region',
+          value: offer.regionName
+        }
+      ],
+      likes: 0,
+      description: offer.description,
+    },
+    images: [offer.mainImageUrl, ...offer.additionalImages],
+    user: {
+      id: offer.providerId,
+      name: offer.providerName,
+      avatar: offer.providerProfilePhotoUrl,
+      memberSince: offer.providerCreatedAt,
+      phoneNumber: offer.providerPhoneNumber,
+      isFollowed: offer.providerIsFollowed
+    },
+    comments: [],
+    similarAds: []
+  };
+}
+
+export default function AdDetailPage() {
+  const params = useParams();
+  const adId = params.adid as string;
+  const locale = useLocale();
+  const { getToken } = useAuth();
+
+  const [ad, setAd] = useState<Ad | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAdDetails = async () => {
+      try {
+        setIsLoading(true);
+        const offerResponse = await getOfferById(adId, locale, getToken());
+
+        if (!offerResponse.success || !offerResponse.data) {
+          setError(offerResponse.message || 'Failed to load offer details');
+          return;
+        }
+
+        setAd(mapOfferToAd(offerResponse.data));
+      } catch (error) {
+        console.error('Failed to load offer details:', error);
+        setError('Failed to load offer details. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdDetails();
+  }, [adId, locale]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-primary-bg flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h1 className="text-xl font-medium">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !ad) {
+    return (
+      <div className="min-h-screen bg-primary-bg flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-red-500">Error</h1>
+          <p className="mt-2">{error || 'Failed to load offer details'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-primary-bg">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Images */}
-        <Images images={dummyAdDetail.images || []} />
+        <Images images={ad.images || []} />
 
         {/* Ad Details */}
-        <AdDetails adDetails={dummyAdDetail.adDetails} />
-
+        <AdDetails adDetails={ad.adDetails} />
 
         {/* User Profile */}
-        <UserProfileSection user={dummyAdDetail.user} />
+        <UserProfileSection adUser={ad.user} />
 
-        {/* Similar Ads */}
-        <SimilarAds ads={dummyAdDetail.similarAds} />
+        {/* Similar Ads - Can be kept for now with empty data */}
+        <SimilarAds ads={[]} />
 
-        {/*comments section */ }
-        <CommentsSection adComments={dummyAdDetail.comments} />
-        
+        {/* Comments Section - Can be kept for now with empty data */}
+        <CommentsSection />
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 export type AdUser = {
-    id: string
+    id: number
     name: string
     avatar: string
     memberSince: string
     phoneNumber: string
-  }
+    isFollowed?: boolean
+}
